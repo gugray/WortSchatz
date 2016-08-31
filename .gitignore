@@ -3,10 +3,12 @@ _sources/*
 !_sources/.placeholder
 _work/*
 !_work/.placeholder
+TestLog/*
+!TestLog/.placeholder
 Publish
-TestLog
 
 # Visual Studio / .NET Core generic
+.vs/
 obj/
 bin/
 project.lock.json

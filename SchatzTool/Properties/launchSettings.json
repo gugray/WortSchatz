@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SchatzTool": {
+      "commandName": "Project",
+      "commandLineArgs": "--propsim 60 54887 _work\\X0-propsim-60-54887.txt",
+      "workingDirectory": "D:\\Development\\Wortschatz"
+    }
+  }
+}

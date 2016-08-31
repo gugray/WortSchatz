@@ -1,0 +1,67 @@
+﻿@model SchatzApp.AppModel
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+  <title>wortschatz</title>
+  <meta name="google" content="notranslate">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&subset=latin-ext" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700&subset=latin-ext" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="centrer">
+    <h1>wortschatz</h1>
+
+    <div id="wiz01" class="wizpage active">
+      <h2>Wie heisst Du?</h2>
+      <div id="name-box">
+        <input id="name-input" type="text" placeholder="Name" maxlength="32" />
+      </div>
+      <div class="button disabled" id="donePage01">Weiter</div>
+    </div>
+
+    <div id="wiz02" class="wizpage">
+      <h2>Wähle die Wörter aus, die Du kennst:</h2>
+      <div class="quizTable">
+        <!--
+        <div class="quizRow">
+          <div class="quizCell">sollen</div>
+          <div class="quizCell">Startfreigabe</div>
+          <div class="quizCell">Propstei</div>
+          <div class="quizCell">Menschenverachtung</div>
+        </div>
+        <div class="quizRow">
+          <div class="quizCell">Sedativ</div>
+          <div class="quizCell">Traubenlese</div>
+          <div class="quizCell">ändern</div>
+          <div class="quizCell">regelmäßig</div>
+        </div>
+        -->
+      </div>
+      <div class="button" id="donePage02">Weiter</div>
+    </div>
+
+    <div id="wiz03" class="wizpage">
+      <div class="bigTitle">Danke!<br/>Hier deine geschätzte Wortschatzgrösse</div>
+      <div class="scorePanel left">
+        <span class="scoreTitle">Schätzung/P</span><br/>
+        <span class="scoreValue" id="scoreProp">0</span>
+      </div>
+      <div class="scorePanel right">
+        <span class="scoreTitle">Schätzung/MW</span><br/>
+        <span class="scoreValue" id="scoreMean">0</span>
+      </div>
+    </div>
+
+    <div id="footSpacer">&nbsp;</div>
+  </div>
+
+  <script src="/static/x-history.min.js"></script>
+  <script src="/static/x-jquery-2.1.4.min.js"></script>
+  <script src="/static/gamma01.js"></script>
+</body>
+</html>

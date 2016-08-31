@@ -1,0 +1,14 @@
+﻿Process DeReKo 100k list and Scrabble word list
+--norm100k _sources\DeReKo-2014-II-MainArchive-STT.100000.freq _sources\OfficialScrabbleWordListGerman.txt _sources\lemmatization-de.txt _work\00-100k-freq-norm.txt _work\00-scrabble-100k-freq.txt _work\00-scrabble-100k-unresolved.txt
+
+Process OpenThesaurus
+--ot _sources\openthesaurus.txt _sources\derewo-v-ww-bll-320000g-2012-12-31-1.0.txt _sources\lemmatization-de.txt _work
+
+Simulate test with N words, X dictionary size; calculate confidence intervals
+--propsim 50 54887 _work\X0-propsim-50-54887.txt
+
+Simulate test with 50k words, different level of knowledge in different regions, and linear/log sample points, 120 questions
+--ranksim _work
+
+Generates an equidistanced sample of N points, from the OT data enriched with DeGeWo ranks
+--propsample 60 _work\10-openthesaurus.txt _work

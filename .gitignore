@@ -1,0 +1,13 @@
+# WortSchatz's custom directory structure
+_sources/*
+!_sources/.placeholder
+_work/*
+!_work/.placeholder
+Publish
+TestLog
+
+# Visual Studio / .NET Core generic
+obj/
+bin/
+project.lock.json
+*.user

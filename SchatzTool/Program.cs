@@ -32,10 +32,9 @@ namespace SchatzTool
             Console.WriteLine("  <output-folder>");
             Console.WriteLine("  ** Simulations about mean rank scoring");
             Console.WriteLine("--propsample");
-            Console.WriteLine("  <sample-size>");
             Console.WriteLine("  <enriched-OpenThesaurus-file>");
             Console.WriteLine("  <output-folder>");
-            Console.WriteLine("  ** Generates an equidistanced sample of N points, from the OT data enriched with DeGeWo ranks.");
+            Console.WriteLine("  ** Generates samples from the OT data enriched with DeGeWo ranks.");
         }
 
         private static TaskBase parseArgs(string[] args)
@@ -63,8 +62,8 @@ namespace SchatzTool
             }
             else if (args[0] == "--propsample")
             {
-                if (args.Length != 4) return null;
-                return new PropSample(int.Parse(args[1]), args[2], args[3]);
+                if (args.Length != 3) return null;
+                return new PropSample(args[1], args[2]);
             }
             return null;
         }

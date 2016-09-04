@@ -11,8 +11,9 @@ namespace SchatzTool
         private readonly Random rnd;
         private readonly int[] rangeTops = new int[] { 1000, 2000, 3000, 5000, 8000, 11000, 15000, 20000, 30000, 40000, 50000 };
         private readonly double[] propsFlatA = new double[] { 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 };
-        private readonly double[] propsSkewA = new double[] { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.1 };
-        private readonly double[] propsSkewB = new double[] { 0.5, 0.25, 0.12, 0.6, 0.1, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 };
+        private readonly double[] propsSkewA = new double[] { 1.0, 1.0, 0.95, 0.95, 0.9, 0.9, 0.85, 0.85, 0.8, 0.8, 0.8 };
+        private readonly double[] propsSkewB = new double[] { 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.1 };
+        private readonly double[] propsSkewC = new double[] { 0.5, 0.25, 0.12, 0.6, 0.1, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 };
 
         public RankSim(string outFolder)
         {
@@ -22,19 +23,20 @@ namespace SchatzTool
 
         public override void Process()
         {
+            // Split rank-based sim with points denser in first part
+            simSplitRank();
+            // Split prop sim with points denser in first part
+            simSplitProp();
+
+            // Old.
             List<int> estimates = new List<int>();
             genPointsLinear(0, dictSize, points);
-            genPointsLinear(0, 1000, pointsA);
-            genPointsLinear(1001, 3000, pointsB);
-            genPointsLinear(3001, 9000, pointsC);
-            genPointsLinear(9001, 27000, pointsD);
-            genPointsLinear(27001, dictSize, pointsE);
             // Muchos FlatA trials: proportional estimate with linear points
             estimates.Clear();
             for (int i = 0; i != 1000; ++i)
             {
                 genSubject(propsFlatA);
-                estimates.Add(simProp());
+                estimates.Add(simProp(points, dictSize, 0));
             }
             TestEval evalFlatAProp = eval(estimates, vocabSize, "FlatA, proportion, linear");
             // Muchos SkewA trials: proportional estimate with linear points
@@ -42,102 +44,112 @@ namespace SchatzTool
             for (int i = 0; i != 1000; ++i)
             {
                 genSubject(propsSkewA);
-                estimates.Add(simProp());
+                estimates.Add(simProp(points, dictSize, 0));
+            }
+            TestEval eee = eval(estimates, vocabSize, "SkewA, proportion, linear");
+            // Muchos SkewA trials: proportional estimate with linear points
+            estimates.Clear();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsSkewB);
+                estimates.Add(simProp(points, dictSize, 0));
             }
             TestEval evalSkewAProp = eval(estimates, vocabSize, "SkewA, proportion, linear");
             // Muchos SkewB trials: proportional estimate with linear points
             estimates.Clear();
             for (int i = 0; i != 1000; ++i)
             {
-                genSubject(propsSkewB);
-                estimates.Add(simProp());
+                genSubject(propsSkewC);
+                estimates.Add(simProp(points, dictSize, 0));
             }
             TestEval evalSkewBProp = eval(estimates, vocabSize, "SkewB, proportion, linear");
-            //// Muchos flat trials: mean rank estimate with linear points
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsFlatA);
-            //    estimates.Add(simRank());
-            //}
-            //TestEval evalFlatAMean = eval(estimates, vocabSize, "FlatA, mean rank, linear");
+        }
 
-            //// Muchos SkewA trials: mean rank estimate with linear points
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsSkewA);
-            //    estimates.Add(simRank());
-            //}
-            //TestEval evalFlatAMean = eval(estimates, vocabSize, "FlatA, mean rank, linear");
+        int[] pointsX = new int[60];
+        int[] pointsY = new int[60];
 
-            //// Muchos FlatA trials: mean rank estimate with linear points, narrow band
-            //// BAD
-            //genPointsLinear(10000, 20000);
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsFlatA);
-            //    estimates.Add(simRank());
-            //}
-            //TestEval evalFlatAMeanNarrow = eval(estimates, vocabSize, "FlatA, mean rank, linear, narrow");
-
-            // ------------------------------
-            genPointsLogarithmic(4);
-            // ------------------------------
-
-            //// BAD
-            //// Muchos flat trials: mean rank estimate with logarithmic points
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsFlatA);
-            //    estimates.Add(simRank());
-            //}
-            //TestEval evalFlatAMean = eval(estimates, vocabSize, "FlatA, mean rank, linear");
-
-            //// Muchos FlatA trials: proportional estimate with logarithmic points
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsFlatA);
-            //    estimates.Add(simProp());
-            //}
-            //TestEval evalFlatAMeanLog = eval(estimates, vocabSize, "FlatA, proportion, logarithmic");
-
-            //// Muchos SkewA trials: proportional estimate with logarithmic points
-            //estimates.Clear();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    genSubject(propsSkewA);
-            //    estimates.Add(simProp());
-            //}
-            //TestEval evalSkewAMeanLog = eval(estimates, vocabSize, "SkewA, proportion, logarithmic");
-
-            // Muchos FlatA trials: composite proportional estimate
-            estimates.Clear();
+        private void simSplitProp()
+        {
+            genPointsLinHalf(0, 16500, pointsX);
+            genPointsLinHalf(0, 33500, pointsY);
+            List<int> estimates = new List<int>();
             for (int i = 0; i != 1000; ++i)
             {
                 genSubject(propsFlatA);
-                estimates.Add(simPropComp());
+                int estX = simProp(pointsX, 16500, 0);
+                int estY = simProp(pointsY, 33500, 16500);
+                estimates.Add(estX + estY);
             }
-            TestEval evalFlatAPropComp = eval(estimates, vocabSize, "FlatA, proportion, composite");
-            // Muchos SkewA trials: composite proportional estimate
+            TestEval srFlatA = eval(estimates, vocabSize, "");
             estimates.Clear();
             for (int i = 0; i != 1000; ++i)
             {
                 genSubject(propsSkewA);
-                estimates.Add(simPropComp());
+                int estX = simProp(pointsX, 16500, 0);
+                int estY = simProp(pointsY, 33500, 16500);
+                estimates.Add(estX + estY);
             }
-            TestEval evalSkewAPropComp = eval(estimates, vocabSize, "SkewA, proportion, composite");
-            // Muchos SkewA trials: composite proportional estimate
+            TestEval srSkewA = eval(estimates, vocabSize, "");
             estimates.Clear();
             for (int i = 0; i != 1000; ++i)
             {
                 genSubject(propsSkewB);
-                estimates.Add(simPropComp());
+                int estX = simProp(pointsX, 16500, 0);
+                int estY = simProp(pointsY, 33500, 16500);
+                estimates.Add(estX + estY);
             }
-            TestEval evalSkewBPropComp = eval(estimates, vocabSize, "SkewB, proportion, composite");
+            TestEval srSkewB = eval(estimates, vocabSize, "");
+            estimates.Clear();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsSkewC);
+                int estX = simProp(pointsX, 16500, 0);
+                int estY = simProp(pointsY, 33500, 16500);
+                estimates.Add(estX + estY);
+            }
+            TestEval srSkewC = eval(estimates, vocabSize, "");
+        }
+
+        private void simSplitRank()
+        {
+            genPointsLinHalf(0, 16500, pointsX);
+            genPointsLinHalf(0, 33500, pointsY);
+            List<int> estimates = new List<int>();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsFlatA);
+                int estX = simRank(pointsX, 0);
+                int estY = simRank(pointsY, 16500);
+                estimates.Add(estX + estY);
+            }
+            TestEval srFlatA = eval(estimates, vocabSize, "");
+            estimates.Clear();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsSkewA);
+                int estX = simRank(pointsX, 0);
+                int estY = simRank(pointsY, 16500);
+                estimates.Add(estX + estY);
+            }
+            TestEval srSkewA = eval(estimates, vocabSize, "");
+            estimates.Clear();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsSkewB);
+                int estX = simRank(pointsX, 0);
+                int estY = simRank(pointsY, 16500);
+                estimates.Add(estX + estY);
+            }
+            TestEval srSkewB = eval(estimates, vocabSize, "");
+            estimates.Clear();
+            for (int i = 0; i != 1000; ++i)
+            {
+                genSubject(propsSkewC);
+                int estX = simRank(pointsX, 0);
+                int estY = simRank(pointsY, 16500);
+                estimates.Add(estX + estY);
+            }
+            TestEval srSkewC = eval(estimates, vocabSize, "");
         }
 
         private bool[] subject = new bool[dictSize];
@@ -214,35 +226,46 @@ namespace SchatzTool
                 (scoreE * (dictSize - 27000) / pointsE.Length);
         }
 
-        private int simProp()
+        private int simProp(int[] points, int partSize, int ofs)
         {
             int score = 0;
-            foreach (int ix in points) if (subject[ix]) ++score;
-            return (score * dictSize / pointCount);
+            foreach (int ix in points) if (subject[ix + ofs]) ++score;
+            return (score * partSize / points.Length);
         }
 
-        private int simRank()
+        private int simRank(int[] simPoints, int ofs)
         {
-            double[] negBelow = new double[pointCount];
-            double[] posAbove = new double[pointCount];
-            double count = 0;
-            for (int i = 0; i < pointCount; ++i)
+            int[] negBelow = new int[simPoints.Length];
+            int[] posAbove = new int[simPoints.Length];
+            int count = 0;
+            for (int i = 0; i < simPoints.Length; ++i)
             {
                 negBelow[i] = count;
-                if (!subject[points[i]]) count += 1;
+                if (!subject[simPoints[i] + ofs]) count += 1;
             }
             count = 0;
-            for (int i = pointCount - 1; i >= 0; --i)
+            for (int i = simPoints.Length - 1; i >= 0; --i)
             {
                 posAbove[i] = count;
-                if (subject[points[i]]) count += 1;
+                if (subject[simPoints[i] + ofs]) count += 1;
             }
             int sweetPoint = -1;
-            for (int i = 0; i != pointCount; ++i)
+            for (int i = 0; i != simPoints.Length; ++i)
             {
                 if (negBelow[i] >= posAbove[i]) { sweetPoint = i; break; }
             }
-            return points[sweetPoint];
+            return simPoints[sweetPoint];
+        }
+
+        private void genPointsLinHalf(int minRank, int maxRank, int[] trg)
+        {
+            int band = maxRank - minRank;
+            int half = band / (trg.Length * 2);
+            for (int i = 0; i != trg.Length; ++i)
+            {
+                int point = minRank + half + i * band / trg.Length;
+                trg[i] = point;
+            }
         }
 
         private void genPointsLinear(int minRank, int maxRank, int[] trg)

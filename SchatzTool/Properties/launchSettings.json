@@ -2,7 +2,7 @@
   "profiles": {
     "SchatzTool": {
       "commandName": "Project",
-      "commandLineArgs": "--propsim 60 54887 _work\\X0-propsim-60-54887.txt",
+      "commandLineArgs": "--propsample _work\\10-openthesaurus.txt _work",
       "workingDirectory": "D:\\Development\\Wortschatz"
     }
   }

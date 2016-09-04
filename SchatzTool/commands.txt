@@ -10,5 +10,5 @@ Simulate test with N words, X dictionary size; calculate confidence intervals
 Simulate test with 50k words, different level of knowledge in different regions, and linear/log sample points, 120 questions
 --ranksim _work
 
-Generates an equidistanced sample of N points, from the OT data enriched with DeGeWo ranks
---propsample 60 _work\10-openthesaurus.txt _work
+Generates samples from the OT data enriched with DeGeWo ranks
+--propsample _work\10-openthesaurus.txt _work

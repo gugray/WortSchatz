@@ -35,13 +35,18 @@ namespace SchatzApp
         {
             loggerFactory.AddConsole();
 
-            if (env.IsDevelopment())
+            // Static file options: inject caching info for all static files.
+            StaticFileOptions sfo = new StaticFileOptions
             {
-                app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
-            }
+                OnPrepareResponse = (context) =>
+                {
+                    context.Context.Response.Headers["Cache-Control"] = "private, max-age=31536000";
+                    context.Context.Response.Headers["Expires"] = DateTime.UtcNow.AddYears(1).ToString("R");
+                }
+            };
+            app.UseStaticFiles(sfo);
 
-            app.UseStaticFiles();
+            // Serve our (single) .cshtml file, and serve API requests.
             app.UseMvc(routes =>
             {
                 routes.MapRoute("api-getgammaquiz", "api/getgammaquiz/{*paras}", new { controller = "Api", action = "GetGammaQuiz", paras = "" });

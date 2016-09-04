@@ -8,8 +8,11 @@ TestLog/*
 Publish
 
 # Visual Studio / .NET Core generic
+node_modules/
 .vs/
 obj/
 bin/
+prod-js/
+prod-style/
 project.lock.json
 *.user

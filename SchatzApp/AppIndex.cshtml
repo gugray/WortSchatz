@@ -1,4 +1,5 @@
-﻿@model SchatzApp.AppModel
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model SchatzApp.AppModel
 
 <!DOCTYPE html>
 <html lang="de">
@@ -10,7 +11,12 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&subset=latin-ext" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700&subset=latin-ext" rel="stylesheet">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/style.css">
+  <environment names="Development">
+    <link rel="stylesheet" href="/static/dev-style/style.css">
+  </environment>
+  <environment names="Staging,Production">
+    <link rel="stylesheet" href="/static/prod-style/app.min.css" asp-append-version="true">
+  </environment>
 </head>
 <body>
   <div id="centrer">
@@ -60,8 +66,13 @@
     <div id="footSpacer">&nbsp;</div>
   </div>
 
-  <script src="/static/x-history.min.js"></script>
-  <script src="/static/x-jquery-2.1.4.min.js"></script>
-  <script src="/static/gamma01.js"></script>
+  <environment names="Development">
+    <script src="/static/lib/history.min.js"></script>
+    <script src="/static/lib/jquery-2.1.4.min.js"></script>
+    <script src="/static/gamma01.js"></script>
+  </environment>
+  <environment names="Staging,Production">
+    <script src="/static/prod-js/app.min.js" asp-append-version="true"></script>
+  </environment>
 </body>
 </html>

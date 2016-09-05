@@ -14,5 +14,6 @@ obj/
 bin/
 prod-js/
 prod-style/
+**/dev-style/*.css
 project.lock.json
 *.user

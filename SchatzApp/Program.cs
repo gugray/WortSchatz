@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 
+using SchatzApp.Logic;
+
 namespace SchatzApp
 {
     public class Program

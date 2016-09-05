@@ -1,4 +1,4 @@
-﻿/// <binding BeforeBuild='default' Clean='clean' />
+﻿/// <binding BeforeBuild='default' Clean='clean' ProjectOpened='watch' />
 var gulp = require('gulp');
 var less = require('gulp-less');
 var path = require('path');
@@ -25,11 +25,11 @@ gulp.task('clean', function () {
 
 // Minify and bundle JS files
 gulp.task('scripts', function () {
-
   return gulp.src([
     './wwwroot/static/lib/history.min.js',
     './wwwroot/static/lib/jquery*.min.js',
-    './wwwroot/static/dev-js/gamma01.js'
+    './wwwroot/static/dev-js/page.js',
+    './wwwroot/static/dev-js/test.js'
   ])
     .pipe(uglify())
     .pipe(concat('app.min.js'))
@@ -46,3 +46,8 @@ gulp.task('styles', ['less'], function () {
 
 // Default task: full clean+build.
 gulp.task('default', ['clean', 'scripts', 'styles'], function () { });
+
+// Watch: recompile less on changes
+gulp.task('watch', function () {
+  gulp.watch(['./wwwroot/static/dev-style/*.less'], ['less']);
+});

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SchatzApp
+namespace SchatzApp.Logic
 {
-    public class AppModel
+    public class EvalResult
     {
-        public string Title { get { return "Brouhaha"; } }
+        public int ScoreProp;
+        public int ScoreMean;
     }
 }

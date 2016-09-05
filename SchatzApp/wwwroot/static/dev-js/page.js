@@ -1,6 +1,5 @@
-﻿/// <reference path="x-jquery-2.1.4.min.js" />
-/// <reference path="x-history.min.js" />
-/// <reference path="x-jquery.tooltipster.min.js" />
+﻿/// <reference path="jquery-2.1.4.min.js" />
+/// <reference path="history.min.js" />
 
 function startsWith(str, prefix) {
   if (str.length < prefix.length)
@@ -17,7 +16,7 @@ function escapeHTML(s) {
           .replace(/>/g, '&gt;');
 }
 
-var kgPage = (function () {
+var wsPage = (function () {
   "use strict";
 
   var reqId = 0; // Current page load request ID. If page has moved on, earlier requests ignored when they complete.
@@ -27,8 +26,6 @@ var kgPage = (function () {
 
   // Page init scripts for each page (identified by relPath).
   var initScripts = {};
-  // Global init scripts invoked on documentReady.
-  var globalInitScripts = [];
 
   // Parse full path, language, and relative path from URL
   function parseLocation() {
@@ -45,8 +42,6 @@ var kgPage = (function () {
     parseLocation();
     // Update menu to show where I am (will soon end up being)
     updateMenuState();
-    // Global script initializers
-    for (var i = 0; i != globalInitScripts.length; ++i) globalInitScripts[i]();
     // Request dynamic page - async
     // Skipped if we received page with content present already
     var hasContent = $("body").hasClass("has-initial-content");
@@ -77,8 +72,7 @@ var kgPage = (function () {
     // Make sense of location
     parseLocation();
     // Clear whatever's currently shown
-    //$("#dynPage").html("");
-    $("#dynPage").addClass("fading");
+    $("#content").addClass("fading");
     // Update menu to show where I am (will soon end up being)
     updateMenuState();
     // Request dynamic page - async
@@ -102,15 +96,12 @@ var kgPage = (function () {
 
   // Show error content in dynamic area
   function applyFailHtml() {
-    $("#dynPage").html("Ouch.");
+    $("#content").html("Ouch.");
     // TO-DO: fail title; keywords; description
   }
 
-  // Apply dynamic content: HTML body, title, description, keywords; possible other data
-  function applyDynContent(data) {
-    $(document).attr("title", data.title);
-    $("#dynPage").html(data.html);
-    $("#dynPage").removeClass("fading");
+  // Calls initializers registered for this page.
+  function initCurrentPage(data) {
     // Run this page's script initializer, if any
     for (var key in initScripts) {
       if (key == "/") {
@@ -118,6 +109,15 @@ var kgPage = (function () {
       }
       else if (startsWith(rel, key)) initScripts[key](data);
     }
+  }
+
+  // Apply dynamic content: HTML body, title, description, keywords; possible other data
+  function applyDynContent(data) {
+    $(document).attr("title", data.title);
+    $("#content").html(data.html);
+    $("#content").removeClass("fading");
+    // Init page
+    initCurrentPage();
     // Scroll to top
     $(window).scrollTop(0);
   }
@@ -137,7 +137,9 @@ var kgPage = (function () {
 
     // Show dynamic content, title etc.
     // Data is null if we're call directly from page load (content already present)
+    // BUT: We must still called registered page initializers
     if (data != null) applyDynContent(data);
+    else initCurrentPage(data);
 
     // Set up single-page navigation
     $(document).on('click', 'a.ajax', function () {
@@ -156,37 +158,15 @@ var kgPage = (function () {
 
   // Updates top navigation menu to reflect where we are
   function updateMenuState() {
-    $("#main-menu a").removeClass("on");
-    $(".sm-item").removeClass("on");
-    $(".sm-item a").removeClass("on");
-    if (rel == "/" || startsWith(rel, "/customer/")) {
-      $("#mm-customers").addClass("on");
-      if (rel == "/") $("#sm-customers").addClass("on");
-      else if (startsWith(rel, "/customer/")) $("#sm-onecustomer").addClass("on");
-    }
-    else if (startsWith(rel, "/reports")) {
-      $("#mm-reports").addClass("on");
-      $("#sm-reports").addClass("on");
-      if (startsWith(rel, "/reports/all")) $("#sm-reports-all").addClass("on");
-      else if (startsWith(rel, "/reports/recent")) $("#sm-reports-recent").addClass("on");
-      else if (startsWith(rel, "/reports/sma")) $("#sm-reports-sma").addClass("on");
-    }
-    else if (startsWith(rel, "/cloud")) {
-      $("#mm-cloud").addClass("on");
-      $("#sm-cloud").addClass("on");
-      if (startsWith(rel, "/cloud/metrics")) $("#sm-cloud-metrics").addClass("on");
-      else if (startsWith(rel, "/cloud/acquisition")) $("#sm-cloud-acquisition").addClass("on");
-    }
+    $("#header-menu a").removeClass("selected");
+    if (rel == "/" || startsWith(rel, "/result")) $("#lnkTest").addClass("selected");
+    else if (startsWith(rel, "/background")) $("#lnkBackground").addClass("selected");
   }
 
   return {
     // Called by page-specific controller scripts to register themselves in single-page app, when page is navigated to.
     registerInitScript: function (pageRel, init) {
       initScripts[pageRel] = init;
-    },
-
-    globalInit: function (init) {
-      globalInitScripts.push(init);
     },
 
     navigateTo: function (url) {

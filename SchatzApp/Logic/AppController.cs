@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SchatzApp
+namespace SchatzApp.Logic
 {
     public class AppController : Controller
     {
         public IActionResult Index(string paras)
         {
-            AppModel model = new AppModel();
-            return View("/AppIndex.cshtml", model);
+            PageResult pr = ApiController.GetPageResult(paras);
+            return View("/AppIndex.cshtml", pr);
         }
     }
 }

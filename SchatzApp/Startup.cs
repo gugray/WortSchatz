@@ -9,12 +9,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using SchatzApp.Logic;
+
 namespace SchatzApp
 {
     public class Startup
     {
         public Startup(IHostingEnvironment env)
         {
+            PageProvider.Init(env.IsDevelopment());
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -49,7 +52,8 @@ namespace SchatzApp
             // Serve our (single) .cshtml file, and serve API requests.
             app.UseMvc(routes =>
             {
-                routes.MapRoute("api-getgammaquiz", "api/getgammaquiz/{*paras}", new { controller = "Api", action = "GetGammaQuiz", paras = "" });
+                routes.MapRoute("api-getpage", "api/getpage/{*paras}", new { controller = "Api", action = "GetPage", paras = "" });
+                routes.MapRoute("api-getquiz", "api/getquiz/{*paras}", new { controller = "Api", action = "GetQuiz", paras = "" });
                 routes.MapRoute("api-evalquiz", "api/evalquiz/{*paras}", new { controller = "Api", action = "EvalQuiz", paras = "" });
                 routes.MapRoute("default", "{*paras}", new { controller = "App", action = "Index", paras = "" });
             });

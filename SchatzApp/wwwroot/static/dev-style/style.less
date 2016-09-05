@@ -1,104 +1,40 @@
-﻿body {
+﻿@import "defines.less";
+
+body {
   margin: 0; padding: 0;
   background-color: white;
   position: relative;
   width: 100%;
-  font-family: "Roboto Slab", serif;
-  color: #505050;
+  font-family: @fontSerif;
+  color: @clrText;
   font-size: 12pt;
   overflow-y: scroll;
+}
+
+#header {
+  position: fixed; top: 0; left: 0; width: 100%; height: @headerHeight;
+  background-color: white; opacity: 0.95; z-index: 1;
+  /*border-bottom: 1px solid #f0f0f0;*/
   cursor: default;
 }
 
-#centrer {
-  position: relative;
-  width: 600pt;
-  margin: 28pt auto 0 auto;
+#header-centrer { position: relative; width: @contWidthFull; margin: 0 auto 0 auto; }
+#header-logo { position: absolute; font-family: @fontSans; width: 52pt; }
+#header-logo span { display: block; position: absolute; }
+#logo1 { color: @clrRedBase; font-weight: 400; font-size: 28pt; top: 6pt; }
+#logo2 { color: @clrDisabled; font-weight: 700; font-size: 17pt; top: 28pt; }
+#header-menu { position: absolute; left: 55pt; }
+#header-menu a {
+  display: block; position: relative; float: left; margin: 16pt 0 0 40pt;
+  text-decoration: none; color: @clrText; font-family: @fontSans; font-size: 24pt; text-transform: lowercase;
+  border-top: 4pt solid white;
+  transition: border-color 0.5s ease;
 }
+#header-menu a:hover, #header-menu a.selected { border-top-color: @clrText; }
 
-#footSpacer {
-  height: 40pt;
-  position: relative; float: left; clear: both;
-}
+#centrer { position: relative; width: @contWidthFull; margin: @headerHeight + 20pt auto 0 auto; }
 
-h1 {
-  margin: 0; padding: 0;
-  font-family: Roboto, sans-serif;
-  font-size: 40pt;
-  font-weight: 300;
-  color: #cc0000;
-  text-align: center;
-}
+#content.fading { opacity: 0.5; }
 
-.wizpage {
-  width: 100%;
-  position: relative;
-  margin-top: 30pt;
-  display: none;
-}
+#footSpacer { height: 40pt; position: relative; float: left; clear: both; }
 
-.wizpage.active {
-  display: block;
-}
-
-h2 {
-  margin: 20pt 0 5pt 0;
-  padding: 0;
-  font-size: 14pt;
-  font-weight: 700;
-}
-
-#name-box {
-  position: relative;
-  background-color: #f5f5f5;
-  height: 26pt;
-  width: 300pt;
-  box-sizing: border-box;
-  margin-left: -5pt;
-}
-
-#name-input {
-  width: 280pt;
-  font-size: 14pt;
-  border: 0;
-  outline: none;
-  margin: 2.5pt 0 0 6pt;
-  background-color: #f5f5f5;
-  color: #505050;
-}
-
-.button {
-  position: relative;
-  float: right;
-  box-sizing: border-box;
-  padding: 4pt 20pt 4pt 20pt;
-  margin: 20pt 0 3pt 0;
-  background-color: #cc0000;
-  color: white;
-  text-align: center;
-  font-family: Roboto, sans-serif;
-}
-
-.button.disabled, .button.disabled:hover { background-color: #808080; }
-.button:hover { background-color: #f01414; }
-
-.quizTable { display: table; width: 100%; border-spacing: 3pt; }
-.quizRow { display: table-row; margin: 3pt 0 3pt 0; }
-.quizCell { display: table-cell; box-sizing: border-box; padding: 4pt; width: 25%; }
-.quizCell:hover { background-color: #ecf7d6; }
-.quizCell.selected { background-color: #d2f09a; }
-
-.bigTitle {
-  position: relative; float: left; clear: both;
-  width: 100%;
-  text-align: center;
-  font-family: Roboto, sans-serif;
-  font-size: 18pt;
-  margin-bottom: 40pt;
-}
-
-.scorePanel { position: relative; float: left; width: 50%; box-sizing: border-box; padding: 0 20pt 0 20pt; }
-.scorePanel.left { text-align: right; }
-.scorePanel.right { text-align: left; }
-.scoreTitle { display: inline-block; font-size: 14pt; font-weight: bold; }
-.scoreValue { display: inline-block; font-family: Robot, sans-serif; font-size: 28pt; font-weight: bold; color: #8cab52; }

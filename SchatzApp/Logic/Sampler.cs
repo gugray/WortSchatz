@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SchatzApp
+namespace SchatzApp.Logic
 {
     internal class Sampler
     {

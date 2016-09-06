@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 
 namespace SchatzApp.Logic
 {
@@ -56,25 +58,39 @@ namespace SchatzApp.Logic
 
         public IActionResult GetQuiz()
         {
-            string[] sample = Sampler.Instance.GetPermutatedSample();
+            string[] sample1, sample2;
+            Sampler.Instance.GetPermutatedSample(out sample1, out sample2);
             QuizResult res = new QuizResult
             {
-                Words1 = new string[20],
-                Words2 = new string[40]
+                Words1 = sample1,
+                Words2 = sample2
             };
-            for (int i = 0; i != 20; ++i) res.Words1[i] = sample[i];
-            for (int i = 0; i != 40; ++i) res.Words2[i] = sample[i + 20];
             return new ObjectResult(res);
         }
 
-        public IActionResult EvalQuiz([FromForm] string name, [FromForm] string[] words)
+        private class SurveyData
         {
-            EvalResult res = new EvalResult();
-            int scoreProp, scoreMean;
-            Sampler.Instance.Eval(name, words, out scoreProp, out scoreMean);
-            res.ScoreProp = Sampler.RoundTo(scoreProp, 500);
-            res.ScoreMean = Sampler.RoundTo(scoreMean, 500);
-            return new ObjectResult(res);
+            public string Native;
+            public string Age;
+            public string NativeCountry;
+            public string NativeEducation;
+            public string NativeOtherLangs;
+            public string NnCountryNow;
+            public string NnGermanTime;
+            public string NnGermanLevel;
+        }
+
+        public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey)
+        {
+            var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);
+            var oSurvey = JsonConvert.DeserializeObject<SurveyData>(survey);
+            int score;
+            char[] resCoded;
+            Sampler.Instance.Eval(oQuiz, out score, out resCoded);
+            if (score > 18000) score = Sampler.RoundTo(score, 500);
+            else score = Sampler.RoundTo(score, 200);
+            // TO-DO: store results; return URL of results page
+            return new ObjectResult(score);
         }
     }
 }

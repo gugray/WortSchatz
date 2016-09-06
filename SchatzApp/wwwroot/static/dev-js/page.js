@@ -1,5 +1,5 @@
-﻿/// <reference path="jquery-2.1.4.min.js" />
-/// <reference path="history.min.js" />
+﻿/// <reference path="../lib/jquery-2.1.4.min.js" />
+/// <reference path="../lib/history.min.js" />
 
 function startsWith(str, prefix) {
   if (str.length < prefix.length)

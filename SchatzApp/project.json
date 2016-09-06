@@ -47,6 +47,7 @@
     "include": [
       "AppIndex.cshtml",
       "data",
+      "html",
       "wwwroot"
     ],
     "exclude": [

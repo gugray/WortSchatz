@@ -8,29 +8,39 @@ namespace SchatzApp.Logic
     {
         private static Sampler instance;
         public static Sampler Instance { get { return instance; } }
-        public static void Init(string logFolder, string dataFileName)
+        public static void Init(string dataFileName)
         {
-            instance = new Sampler(logFolder, dataFileName);
+            instance = new Sampler(dataFileName);
         }
-
-        private readonly string logFileName;
 
         private class SamplePoint
         {
             public readonly int Rank;
-            public readonly string Word;
-            public SamplePoint(int rank, string word)
+            public readonly string WordA;
+            public readonly string WordB;
+            public readonly string WordC;
+            public SamplePoint(int rank, string wordA, string wordB, string wordC)
             {
                 Rank = rank;
-                Word = word;
+                WordA = wordA;
+                WordB = wordB;
+                WordC = wordC;
             }
         }
 
-        private readonly SamplePoint[] points;
-        private readonly int dictSize;
-        private readonly Dictionary<string, int> wordToIndex = new Dictionary<string, int>();
+        private class RangeSample
+        {
+            public readonly SamplePoint[] Points = new SamplePoint[40];
+            public readonly int Size;
+            public readonly Dictionary<string, int> WordToIndex = new Dictionary<string, int>();
+            public RangeSample(int size) { Size = size; }
+        }
 
-        private Sampler(string logFolder, string dataFileName)
+        private readonly RangeSample range1 = new RangeSample(9000);
+        private readonly RangeSample range2 = new RangeSample(18000);
+        private readonly RangeSample range3 = new RangeSample(27885);
+
+        private Sampler(string dataFileName)
         {
             // Read sample
             List<SamplePoint> pointList = new List<SamplePoint>();
@@ -38,35 +48,86 @@ namespace SchatzApp.Logic
             using (StreamReader sr = new StreamReader(fs))
             {
                 string line;
+                int i = -1;
+                int lastRank = -1;
+                RangeSample range = range1;
+                string wordA = null;
+                string wordB = null;
+                string wordC = null;
                 while ((line = sr.ReadLine()) != null)
                 {
+                    if (line == "") continue;
                     string[] parts = line.Split('\t');
-                    SamplePoint sp = new SamplePoint(int.Parse(parts[0]), parts[1]);
-                    wordToIndex[sp.Word] = pointList.Count;
-                    pointList.Add(sp);
+                    int rank = int.Parse(parts[0]);
+                    if (lastRank != rank) { ++i; lastRank = rank; }
+                    if (i == 40)
+                    {
+                        if (range == range1) range = range2;
+                        else range = range3;
+                        i = 0;
+                    }
+                    if (parts[2] == "a") wordA = parts[1];
+                    if (parts[2] == "b") wordB = parts[1];
+                    if (parts[2] == "c") wordC = parts[1];
+                    if (wordA != null && wordB != null && wordC != null)
+                    {
+                        SamplePoint point = new SamplePoint(rank, wordA, wordB, wordC);
+                        range.Points[i] = point;
+                        range.WordToIndex[wordA] = i;
+                        range.WordToIndex[wordB] = i;
+                        range.WordToIndex[wordC] = i;
+                        wordA = wordB = wordC = null;
+                    }
                 }
             }
-            points = pointList.ToArray();
-            dictSize = points[points.Length - 1].Rank + points[0].Rank;
-            // Touch log file
-            logFileName = Path.Combine(logFolder, "testlog.txt");
-            if (!File.Exists(logFileName)) File.CreateText(logFileName);
         }
 
-        public string[] GetPermutatedSample()
+        private static void permutate(string[] arr, Random rnd)
+        {
+            for (int i = arr.Length - 1; i > 0; --i)
+            {
+                int swapIndex = rnd.Next(i + 1);
+                string tmp = arr[i];
+                arr[i] = arr[swapIndex];
+                arr[swapIndex] = tmp;
+            }
+        }
+
+        public void GetPermutatedSample(out string[] list1, out string[] list2)
         {
             // Get random permutation of indexes
             Random rnd = new Random();
-            string[] res = new string[points.Length];
-            for (int i = 0; i != res.Length; ++i) res[i] = points[i].Word;
-            for (int i = res.Length - 1; i > 0; --i)
+            // Make three samples: randomly choose A, B or C from each range
+            string[] sample1 = new string[40];
+            string[] sample2 = new string[40];
+            string[] sample3 = new string[40];
+            for (int i = 0; i != 40; ++i)
             {
-                int swapIndex = rnd.Next(i + 1);
-                string tmp = res[i];
-                res[i] = res[swapIndex];
-                res[swapIndex] = tmp;
+                int x = rnd.Next(3);
+                if (x == 0) sample1[i] = range1.Points[i].WordA;
+                else if (x == 1) sample1[i] = range1.Points[i].WordB;
+                else sample1[i] = range1.Points[i].WordC;
+                x = rnd.Next(3);
+                if (x == 0) sample2[i] = range2.Points[i].WordA;
+                else if (x == 1) sample2[i] = range2.Points[i].WordB;
+                else sample2[i] = range2.Points[i].WordC;
+                x = rnd.Next(3);
+                if (x == 0) sample3[i] = range3.Points[i].WordA;
+                else if (x == 1) sample3[i] = range3.Points[i].WordB;
+                else sample3[i] = range3.Points[i].WordC;
             }
-            return res;
+            // Permutate all three samples
+            permutate(sample1, rnd);
+            permutate(sample2, rnd);
+            permutate(sample3, rnd);
+            // Return two lists
+            list1 = sample1;
+            list2 = new string[80];
+            for (int i = 0; i != 40; ++i)
+            {
+                list2[i] = sample2[i];
+                list2[i + 40] = sample3[i];
+            }
         }
 
         public static int RoundTo(int val, int prec)
@@ -74,55 +135,47 @@ namespace SchatzApp.Logic
             return (int)(Math.Round((double)val / prec) * prec);
         }
 
-        public void Eval(string name, string[] words, out int scoreProp, out int scoreMean)
+        public void Eval(IList<string[]> qres, out int score, out char[] resCoded)
         {
-            // Proportion-based score: piece of cake
-            scoreProp = dictSize * words.Length / points.Length;
-
-            // Mean-based score
-            HashSet<int> positiveIndexes = new HashSet<int>();
-            foreach (string word in words) positiveIndexes.Add(wordToIndex[word]);
-            int[] negBelow = new int[points.Length];
-            int[] posAbove = new int[points.Length];
-            int count = 0;
-            for (int i = 0; i < points.Length; ++i)
+            resCoded = new char[120];
+            int count1 = 0;
+            int count2 = 0;
+            int count3 = 0;
+            foreach (var x in qres)
             {
-                negBelow[i] = count;
-                if (!positiveIndexes.Contains(i)) count += 1;
-            }
-            count = 0;
-            for (int i = points.Length - 1; i >= 0; --i)
-            {
-                posAbove[i] = count;
-                if (positiveIndexes.Contains(i)) count += 1;
-            }
-            int sweetPoint = -1;
-            for (int i = 0; i != points.Length; ++i)
-            {
-                if (negBelow[i] >= posAbove[i]) { sweetPoint = i; break; }
-            }
-            scoreMean = points[sweetPoint].Rank;
-
-            // Log
-            lock (this)
-            {
-                string wordsInOne = "";
-                for (int i = 0; i != words.Length; ++i)
+                string word = x[0];
+                // Which range, which point?
+                RangeSample range;
+                int rangeOfs;
+                if (range1.WordToIndex.ContainsKey(word)) { range = range1; rangeOfs = 0; }
+                else if (range2.WordToIndex.ContainsKey(word)) { range = range2; rangeOfs = 40; }
+                else if (range3.WordToIndex.ContainsKey(word)) { range = range3; rangeOfs = 80; }
+                else throw new Exception("Word not in sample: " + word);
+                // Which word
+                int ixInRange = range.WordToIndex[word];
+                SamplePoint sp = range.Points[ixInRange];
+                char mark;
+                if (word == sp.WordA) mark = 'a';
+                else if (word == sp.WordB) mark = 'b';
+                else mark = 'c';
+                // Positive or negative?
+                if (x[1] == "yes")
                 {
-                    if (i != 0) wordsInOne += ";";
-                    wordsInOne += words[i];
+                    mark = char.ToUpper(mark);
+                    if (range == range1) ++count1;
+                    else if (range == range2) ++count2;
+                    else ++count3;
                 }
-                DateTime dt = DateTime.UtcNow;
-                using (FileStream fs = new FileStream(logFileName, FileMode.Append, FileAccess.Write))
-                using (StreamWriter sw = new StreamWriter(fs))
-                {
-                    string line = "{0}-{1}-{2}!{3}:{4}\t{5}\t{6}\t{7}\t{8}";
-                    line = string.Format(line, dt.Year, dt.Month.ToString("00"), dt.Day.ToString("00"),
-                        dt.Hour.ToString("00"), dt.Minute.ToString("00"),
-                        name, scoreProp, scoreMean, wordsInOne);
-                    sw.WriteLine(line);
-                }
+                else if (x[1] != "no") throw new Exception("Invalid quiz value for word: " + x[1]);
+                // Encode
+                resCoded[rangeOfs + ixInRange] = mark;
             }
+            // Estimate three ranges separately
+            int est1 = range1.Size * count1 / range1.Points.Length;
+            int est2 = range2.Size * count2 / range2.Points.Length;
+            int est3 = range3.Size * count3 / range3.Points.Length;
+            // Result is sum of three estimates
+            score = est1 + est2 + est3;
         }
     }
 }

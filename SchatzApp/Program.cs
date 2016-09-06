@@ -13,8 +13,7 @@ namespace SchatzApp
     {
         public static void Main(string[] args)
         {
-            Sampler.Init("../TestLog", "data/sample-01.txt");
-            Sampler.Instance.GetPermutatedSample();
+            Sampler.Init("data/sample-02.txt");
             var host = new WebHostBuilder()
                .UseUrls("http://127.0.0.1:5001")
                .UseKestrel()

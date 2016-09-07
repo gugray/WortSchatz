@@ -1,20 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 
 namespace SchatzApp.Logic
 {
     public partial class ApiController : Controller
     {
-        private readonly IHostingEnvironment env;
+        private readonly PageProvider pageProvider;
+        private readonly Sampler sampler;
 
-        public ApiController(IHostingEnvironment env)
+        public ApiController(PageProvider pageProvider, Sampler sampler)
         {
-            this.env = env;
+            this.pageProvider = pageProvider;
+            this.sampler = sampler;
         }
 
         private static string esc(string str, bool quotes = false)
@@ -30,16 +28,9 @@ namespace SchatzApp.Logic
             return str;
         }
 
-        public static PageResult GetPageResult(string rel)
+        public IActionResult GetPage([FromForm] string rel)
         {
-            if (rel == null) rel = "/";
-            else
-            {
-                rel = rel.TrimEnd('/');
-                if (rel == string.Empty) rel = "/";
-                if (!rel.StartsWith("/")) rel = "/" + rel;
-            }
-            var pi = PageProvider.Instant.GetPage("de", rel);
+            var pi = pageProvider.GetPage(rel);
             if (pi == null) return null;
             PageResult res = new PageResult
             {
@@ -48,18 +39,13 @@ namespace SchatzApp.Logic
                 Keywords = pi.Keywords,
                 Html = pi.Html
             };
-            return res;
-        }
-
-        public IActionResult GetPage([FromForm] string rel)
-        {
-            return new ObjectResult(GetPageResult(rel));
+            return new ObjectResult(res);
         }
 
         public IActionResult GetQuiz()
         {
             string[] sample1, sample2;
-            Sampler.Instance.GetPermutatedSample(out sample1, out sample2);
+            sampler.GetPermutatedSample(out sample1, out sample2);
             QuizResult res = new QuizResult
             {
                 Words1 = sample1,
@@ -86,7 +72,7 @@ namespace SchatzApp.Logic
             var oSurvey = JsonConvert.DeserializeObject<SurveyData>(survey);
             int score;
             char[] resCoded;
-            Sampler.Instance.Eval(oQuiz, out score, out resCoded);
+            sampler.Eval(oQuiz, out score, out resCoded);
             if (score > 18000) score = Sampler.RoundTo(score, 500);
             else score = Sampler.RoundTo(score, 200);
             // TO-DO: store results; return URL of results page

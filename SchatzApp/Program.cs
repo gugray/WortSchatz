@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
-
-using SchatzApp.Logic;
 
 namespace SchatzApp
 {
@@ -13,7 +7,6 @@ namespace SchatzApp
     {
         public static void Main(string[] args)
         {
-            Sampler.Init("data/sample-02.txt");
             var host = new WebHostBuilder()
                .UseUrls("http://127.0.0.1:5001")
                .UseKestrel()

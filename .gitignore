@@ -5,6 +5,8 @@ _work/*
 !_work/.placeholder
 TestLog/*
 !TestLog/.placeholder
+ProdData/*
+!ProdData/.placeholder
 Publish
 
 # Visual Studio / .NET Core generic

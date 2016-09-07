@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SchatzApp.Logic
 {
-    internal class PageProvider
+    public class PageProvider
     {
-        private static PageProvider instance;
-        public static PageProvider Instant { get { return instance; } }
-        public static void Init(bool isDevelopment) { instance = new PageProvider(isDevelopment); }
-
         public class PageInfo
         {
             public readonly string Title;
@@ -28,32 +23,27 @@ namespace SchatzApp.Logic
         }
 
         private readonly bool isDevelopment;
-        private readonly Dictionary<string, Dictionary<string, PageInfo>> langPageDict;
+        private readonly Dictionary<string, PageInfo> pageDict;
 
-        private PageProvider(bool isDevelopment)
+        public PageProvider(bool isDevelopment)
         {
             this.isDevelopment = isDevelopment;
-            langPageDict = new Dictionary<string, Dictionary<string, PageInfo>>();
+            pageDict = new Dictionary<string, PageInfo>();
             init();
         }
 
-        private readonly Regex reHtmlName = new Regex(@".+\-([^\.\-]+)\.html");
-
         private void init()
         {
-            langPageDict.Clear();
+            pageDict.Clear();
             var files = Directory.EnumerateFiles("./html");
             foreach (var fn in files)
             {
                 string name = Path.GetFileName(fn);
-                Match m = reHtmlName.Match(name);
-                if (!m.Success) continue;
-                string lang = m.Groups[1].Value;
+                if (!name.EndsWith(".html")) continue;
                 string rel;
                 PageInfo pi = loadPage(fn, out rel);
                 if (rel == null) continue;
-                if (!langPageDict.ContainsKey(lang)) langPageDict[lang] = new Dictionary<string, PageInfo>();
-                langPageDict[lang][rel] = pi;
+                pageDict[rel] = pi;
             }
         }
 
@@ -88,13 +78,20 @@ namespace SchatzApp.Logic
             return new PageInfo(title, keywords, description, html.ToString());
         }
 
-        public PageInfo GetPage(string lang, string rel)
+        public PageInfo GetPage(string rel)
         {
             if (isDevelopment) init();
-            if (!langPageDict.ContainsKey(lang)) return null;
-            Dictionary<string, PageInfo> x = langPageDict[lang];
-            if (!x.ContainsKey(rel)) return null;
-            return x[rel];
+
+            if (rel == null) rel = "/";
+            else
+            {
+                rel = rel.TrimEnd('/');
+                if (rel == string.Empty) rel = "/";
+                if (!rel.StartsWith("/")) rel = "/" + rel;
+            }
+
+            if (!pageDict.ContainsKey(rel)) return null;
+            return pageDict[rel];
         }
     }
 }

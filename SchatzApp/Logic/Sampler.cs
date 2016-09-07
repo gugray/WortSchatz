@@ -4,15 +4,8 @@ using System.IO;
 
 namespace SchatzApp.Logic
 {
-    internal class Sampler
+    public class Sampler
     {
-        private static Sampler instance;
-        public static Sampler Instance { get { return instance; } }
-        public static void Init(string dataFileName)
-        {
-            instance = new Sampler(dataFileName);
-        }
-
         private class SamplePoint
         {
             public readonly int Rank;
@@ -40,7 +33,7 @@ namespace SchatzApp.Logic
         private readonly RangeSample range2 = new RangeSample(18000);
         private readonly RangeSample range3 = new RangeSample(27885);
 
-        private Sampler(string dataFileName)
+        public Sampler(string dataFileName)
         {
             // Read sample
             List<SamplePoint> pointList = new List<SamplePoint>();

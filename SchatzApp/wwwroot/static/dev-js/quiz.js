@@ -1,7 +1,7 @@
 ﻿/// <reference path="../lib/jquery-2.1.4.min.js" />
 /// <reference path="page.js" />
 
-var wsGamme = (function () {
+var wsQuiz = (function () {
   "use strict";
 
   var reqId = 0;
@@ -82,8 +82,8 @@ var wsGamme = (function () {
 
   // Proceed to second page (broader sample).
   function goToPage02() {
-    $("#test-first").removeClass("active");
-    $("#test-second").addClass("active");
+    $("#quiz-first").removeClass("active");
+    $("#quiz-second").addClass("active");
     displayWords(words2, "#quizTable2");
     $(window).scrollTop(0);
   }
@@ -96,8 +96,8 @@ var wsGamme = (function () {
 
   // Proceed to third page (optional survey).
   function goToPage03() {
-    $("#test-second").removeClass("active");
-    $("#test-third").addClass("active");
+    $("#quiz-second").removeClass("active");
+    $("#quiz-third").addClass("active");
     // Initialize survey
     initSurvey();
     $(window).scrollTop(0);
@@ -105,16 +105,16 @@ var wsGamme = (function () {
 
   // Initialize survey's event handlers.
   function initSurvey() {
-    $(".test-survey-choice").click(onSingleChoiceClick);
-    $(".test-survey-choice").bind("tap", onSingleChoiceClick);
+    $(".quiz-survey-choice").click(onSingleChoiceClick);
+    $(".quiz-survey-choice").bind("tap", onSingleChoiceClick);
   }
 
   // Event handler: select clicked/tapped item in single-choice answer set.
   function onSingleChoiceClick() {
-    // Find parent with test-survey-item class: that's our "group"
-    var surveyItem = $(this).parents(".test-survey-item");
+    // Find parent with quiz-survey-item class: that's our "group"
+    var surveyItem = $(this).parents(".quiz-survey-item");
     // Remove "selected" class from all choices
-    surveyItem.find(".test-survey-choice").removeClass("selected");
+    surveyItem.find(".quiz-survey-choice").removeClass("selected");
     // Make clicked choice selected
     $(this).addClass("selected");
     // Toggle visibility of survey's dynamic sections
@@ -148,8 +148,8 @@ var wsGamme = (function () {
       sessionStorage.removeItem("quiz")
       words1 = words2 = [];
       // TO-DO: make this a redirect to proper results page
-      $("#test-third").removeClass("active");
-      $("#test-fourth-temp").addClass("active");
+      $("#quiz-third").removeClass("active");
+      $("#quiz-fourth-temp").addClass("active");
       $("#quizResult").text(data);
     });
   }
@@ -158,7 +158,7 @@ var wsGamme = (function () {
   function gatherSurveyInput() {
     var res = {};
     // All single-choice answers
-    $(".test-survey-choice.selected").each(function () {
+    $(".quiz-survey-choice.selected").each(function () {
       var key = $(this).parent().data("fieldcode");
       var val = $(this).data("rescode");
       res[key] = val;

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace SchatzApp
 {
@@ -11,7 +12,9 @@ namespace SchatzApp
                .UseUrls("http://127.0.0.1:5001")
                .UseKestrel()
                .UseContentRoot(Directory.GetCurrentDirectory())
+               .ConfigureLogging(x => { })
                .UseStartup<Startup>()
+               .CaptureStartupErrors(true)
                .Build();
             host.Run();
         }

@@ -1,26 +1,26 @@
 ﻿@import "defines.less";
 
-.testpage { display: none; position: relative; float: left; clear: both; width: 100%; }
-.testpage.active { display: block; }
+.quizpage { display: none; position: relative; float: left; clear: both; width: 100%; }
+.quizpage.active { display: block; }
 
-#test-tease-question {
+#quiz-tease-question {
   position: absolute; width: 200pt; left: @contWidthFull - 200pt; top: 9pt;
   text-align: center; font-family: Lora, serif; font-size: 18pt; font-style: italic; color: @clrRedBase;
 }
 
-#test-tease-cta { color: black; font-family: Oswald, serif; font-size: 28pt; font-weight: 700; margin-bottom: 30pt; }
-#test-tease-cta span { display: block; font-family: Lora, serif; font-style: italic; font-size: 11pt; font-weight: 400; }
+#quiz-tease-cta { color: black; font-family: Oswald, serif; font-size: 28pt; font-weight: 700; margin-bottom: 30pt; }
+#quiz-tease-cta span { display: block; font-family: Lora, serif; font-style: italic; font-size: 11pt; font-weight: 400; }
 
-.test-heading { position: relative; float: left; width: 100%; font-size: 15pt; }
-.test-heading div { position: relative; float: left; }
-.test-heading .test-heading-1 { font-weight: bold; }
-.test-heading .test-heading-2 { color: @clrDisabled; margin-left: 4pt; }
-.test-heading .test-heading-3 {
+.quiz-heading { position: relative; float: left; width: 100%; font-size: 15pt; }
+.quiz-heading div { position: relative; float: left; }
+.quiz-heading .quiz-heading-1 { font-weight: bold; }
+.quiz-heading .quiz-heading-2 { color: @clrDisabled; margin-left: 4pt; }
+.quiz-heading .quiz-heading-3 {
   float: right; font-family: "Roboto", sans-serif; font-size: 14pt; color: white;
   background-color: @clrDisabled; padding: 0 5pt 0 5pt; border-radius: 4pt;
 }
 
-.test-explanation { position: relative; float: left; clear: both;  font-size: 11pt; margin-top: 8pt; margin-bottom: 4pt; }
+.quiz-explanation { position: relative; float: left; clear: both;  font-size: 11pt; margin-top: 8pt; margin-bottom: 4pt; }
 
 .button {
   position: relative; float: right;
@@ -40,19 +40,19 @@
 .quizCell:hover { background-color: @clrGreenHover; }
 .quizCell.selected { background-color: @clrGreenSelected; }
 
-#test-survey, .test-survey-item { position: relative; float: left; clear: both; width: 100%; }
-#test-survey { margin-top: 20pt; font-size: 12pt; }
-.test-survey-item { margin-top: 15pt; }
-.test-survey-section { display: none; }
-.test-survey-section.visible { display: block; }
-.test-survey-question { position: relative; float: left; width: 290pt; }
-.test-survey-answer { position: relative; float: left; }
-.test-survey-choice {
+#quiz-survey, .quiz-survey-item { position: relative; float: left; clear: both; width: 100%; }
+#quiz-survey { margin-top: 20pt; font-size: 12pt; }
+.quiz-survey-item { margin-top: 15pt; }
+.quiz-survey-section { display: none; }
+.quiz-survey-section.visible { display: block; }
+.quiz-survey-question { position: relative; float: left; width: 290pt; }
+.quiz-survey-answer { position: relative; float: left; }
+.quiz-survey-choice {
   display: inline-block; padding: 2pt 12pt 2pt 12pt; margin: 0 4pt 6pt 0; font-weight: 700; 
   cursor: default; border: 1px solid @clrLightBorder;
 }
-.test-survey-choice:hover { background-color: @clrGreenHover; }
-.test-survey-choice.selected { background-color: @clrGreenSelected; }
+.quiz-survey-choice:hover { background-color: @clrGreenHover; }
+.quiz-survey-choice.selected { background-color: @clrGreenSelected; }
 .field-box { background-color: @clrField; margin: -4pt 0 0 0; padding: 4pt 2pt 4pt 2pt; }
 .field {
   border: 0; outline: none; margin: 0; background-color: @clrField; color: @clrText;

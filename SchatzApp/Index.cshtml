@@ -1,5 +1,5 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model SchatzApp.Logic.PageResult
+@model SchatzApp.Entities.PageResult
 
 <!DOCTYPE html>
 <html lang="de">
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
   <environment names="Development">
     <link rel="stylesheet" href="/static/dev-style/style.css">
-    <link rel="stylesheet" href="/static/dev-style/test.css">
+    <link rel="stylesheet" href="/static/dev-style/quiz.css">
   </environment>
   <environment names="Staging,Production">
     <link rel="stylesheet" href="/static/prod-style/app.min.css" asp-append-version="true">
@@ -30,7 +30,7 @@
       </div>
       <div id="header-menu">
         <a id="lnkTest" class="ajax" href="/">Der Test</a>
-        <a id="lnkBackground" class="ajax" href="/background">Hintergrund</a>
+        <a id="lnkBackground" class="ajax" href="/hintergrund">Hintergrund</a>
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
     <script src="/static/lib/history.min.js"></script>
     <script src="/static/lib/jquery-2.1.4.min.js"></script>
     <script src="/static/dev-js/page.js"></script>
-    <script src="/static/dev-js/test.js"></script>
+    <script src="/static/dev-js/quiz.js"></script>
   </environment>
   <environment names="Staging,Production">
     <script src="/static/prod-js/app.min.js" asp-append-version="true"></script>

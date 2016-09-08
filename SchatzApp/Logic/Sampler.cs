@@ -4,10 +4,19 @@ using System.IO;
 
 namespace SchatzApp.Logic
 {
+    /// <summary>
+    /// Generates random samples for quiz; evaluates quiz results.
+    /// </summary>
     public class Sampler
     {
+        /// <summary>
+        /// Three alternative, manually verified words at the same approximate rank.
+        /// </summary>
         private class SamplePoint
         {
+            /// <summary>
+            /// Rank within dictionary (more frequent words have a lower value).
+            /// </summary>
             public readonly int Rank;
             public readonly string WordA;
             public readonly string WordB;
@@ -21,20 +30,53 @@ namespace SchatzApp.Logic
             }
         }
 
+        /// <summary>
+        /// Sample points in one range of the dictionary.
+        /// </summary>
         private class RangeSample
         {
+            /// <summary>
+            /// 40 sample points.
+            /// </summary>
             public readonly SamplePoint[] Points = new SamplePoint[40];
+            /// <summary>
+            /// Size of this range.
+            /// </summary>
             public readonly int Size;
+            /// <summary>
+            /// Map from words in range to their position in <see cref="Points"/>.
+            /// </summary>
             public readonly Dictionary<string, int> WordToIndex = new Dictionary<string, int>();
+            /// <summary>
+            /// Ctor: init with range's size in dictionary.
+            /// </summary>
             public RangeSample(int size) { Size = size; }
         }
 
+        /// <summary>
+        /// Sample file name (w/o extension). Returned with each evaluation so stored data refers explicitly to sample used.
+        /// </summary>
+        private readonly string sampleName;
+        /// <summary>
+        /// First range: 9k high-frequency words.
+        /// </summary>
         private readonly RangeSample range1 = new RangeSample(9000);
+        /// <summary>
+        /// Second range: 18k medium-frequency words.
+        /// </summary>
         private readonly RangeSample range2 = new RangeSample(18000);
+        /// <summary>
+        /// Third range: 27k+ rare words.
+        /// </summary>
         private readonly RangeSample range3 = new RangeSample(27885);
 
+        /// <summary>
+        /// Ctor: initialize from sample data in tab-separated format.
+        /// </summary>
+        /// <param name="dataFileName">File to parse for sample points.</param>
         public Sampler(string dataFileName)
         {
+            sampleName = Path.GetFileNameWithoutExtension(dataFileName);
             // Read sample
             List<SamplePoint> pointList = new List<SamplePoint>();
             using (FileStream fs = new FileStream(dataFileName, FileMode.Open, FileAccess.Read))
@@ -75,6 +117,9 @@ namespace SchatzApp.Logic
             }
         }
 
+        /// <summary>
+        /// Helper function: randomly permutates provided array.
+        /// </summary>
         private static void permutate(string[] arr, Random rnd)
         {
             for (int i = arr.Length - 1; i > 0; --i)
@@ -86,6 +131,9 @@ namespace SchatzApp.Logic
             }
         }
 
+        /// <summary>
+        /// Gets a permutated sample (words A, B or C; random order) in two parts.
+        /// </summary>
         public void GetPermutatedSample(out string[] list1, out string[] list2)
         {
             // Get random permutation of indexes
@@ -123,14 +171,27 @@ namespace SchatzApp.Logic
             }
         }
 
+        /// <summary>
+        /// Rounds number to the nearest 200, 500 etc. Helper for showing less-precise results in UI.
+        /// </summary>
         public static int RoundTo(int val, int prec)
         {
             return (int)(Math.Round((double)val / prec) * prec);
         }
 
+        /// <summary>
+        /// Evaluates a single returned quiz.
+        /// </summary>
+        /// <param name="qres">Words+yes/no pairs.</param>
+        /// <param name="score">Calculated score (not rounded).</param>
+        /// <param name="resCoded">Encoded result to store for analysis.</param>
         public void Eval(IList<string[]> qres, out int score, out char[] resCoded)
         {
-            resCoded = new char[120];
+            resCoded = new char[120 + sampleName.Length + 1];
+            for (int i = 0; i != sampleName.Length; ++i) resCoded[i] = sampleName[i];
+            int resOfs = sampleName.Length + 1;
+            resCoded[resOfs - 1] = '-';
+
             int count1 = 0;
             int count2 = 0;
             int count3 = 0;
@@ -161,7 +222,7 @@ namespace SchatzApp.Logic
                 }
                 else if (x[1] != "no") throw new Exception("Invalid quiz value for word: " + x[1]);
                 // Encode
-                resCoded[rangeOfs + ixInRange] = mark;
+                resCoded[resOfs + rangeOfs + ixInRange] = mark;
             }
             // Estimate three ranges separately
             int est1 = range1.Size * count1 / range1.Points.Length;

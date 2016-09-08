@@ -1,12 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+
+using SchatzApp.Entities;
 
 namespace SchatzApp.Logic
 {
+    /// <summary>
+    /// Provides dynamic HTML for single-page app's URL-specific elements.
+    /// </summary>
     public class PageProvider
     {
+        /// <summary>
+        /// Matches <see cref="Entities.PageResult"/>, but we don't want to cross-pollute implementation and shared entities. 
+        /// </summary>
         public class PageInfo
         {
             public readonly string Title;
@@ -22,19 +32,31 @@ namespace SchatzApp.Logic
             }
         }
 
+        /// <summary>
+        /// True if current hosting environment is Development.
+        /// </summary>
         private readonly bool isDevelopment;
-        private readonly Dictionary<string, PageInfo> pageDict;
+        /// <summary>
+        /// Page cache, keyed by relative URLs.
+        /// </summary>
+        private readonly Dictionary<string, PageInfo> pageCache;
 
+        /// <summary>
+        /// Ctor: init; load pages from plain files into cache.
+        /// </summary>
         public PageProvider(bool isDevelopment)
         {
             this.isDevelopment = isDevelopment;
-            pageDict = new Dictionary<string, PageInfo>();
-            init();
+            pageCache = new Dictionary<string, PageInfo>();
+            initPageCache();
         }
 
-        private void init()
+        /// <summary>
+        /// Loads all pages into cache.
+        /// </summary>
+        private void initPageCache()
         {
-            pageDict.Clear();
+            pageCache.Clear();
             var files = Directory.EnumerateFiles("./html");
             foreach (var fn in files)
             {
@@ -43,12 +65,18 @@ namespace SchatzApp.Logic
                 string rel;
                 PageInfo pi = loadPage(fn, out rel);
                 if (rel == null) continue;
-                pageDict[rel] = pi;
+                pageCache[rel] = pi;
             }
         }
 
+        /// <summary>
+        /// Regex to identify/extract metainformation included in HTML files as funny SPANs.
+        /// </summary>
         private readonly Regex reMetaSpan = new Regex("<span id=\"x\\-([^\"]+)\">([^<]+)<\\/span>");
 
+        /// <summary>
+        /// Loads and parses a single page.
+        /// </summary>
         private PageInfo loadPage(string fileName, out string rel)
         {
             StringBuilder html = new StringBuilder();
@@ -78,10 +106,15 @@ namespace SchatzApp.Logic
             return new PageInfo(title, keywords, description, html.ToString());
         }
 
-        public PageInfo GetPage(string rel)
+        /// <summary>
+        /// Returns a page by relative URL, or null if not present.
+        /// </summary>
+        public PageResult GetPage(string rel)
         {
-            if (isDevelopment) init();
+            // At development, we reload entire cache with each request so HTML files can be edited on the fly.
+            if (isDevelopment) initPageCache();
 
+            // A bit or normalization on relative URL.
             if (rel == null) rel = "/";
             else
             {
@@ -89,9 +122,17 @@ namespace SchatzApp.Logic
                 if (rel == string.Empty) rel = "/";
                 if (!rel.StartsWith("/")) rel = "/" + rel;
             }
-
-            if (!pageDict.ContainsKey(rel)) return null;
-            return pageDict[rel];
+            // Page or null.
+            if (!pageCache.ContainsKey(rel)) return null;
+            PageInfo pi = pageCache[rel];
+            PageResult pr = new PageResult
+            {
+                Title = pi.Title,
+                Description = pi.Description,
+                Keywords = pi.Keywords,
+                Html = pi.Html,
+            };
+            return pr;
         }
     }
 }

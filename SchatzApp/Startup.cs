@@ -14,11 +14,14 @@ namespace SchatzApp
     public class Startup
     {
         private readonly IHostingEnvironment env;
+        private readonly ILoggerFactory loggerFactory;
         private readonly IConfigurationRoot config;
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             this.env = env;
+            this.loggerFactory = loggerFactory;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -26,6 +29,7 @@ namespace SchatzApp
                 .AddEnvironmentVariables();
             if (Directory.Exists("/etc/wschatz")) builder.AddJsonFile("/etc/wschatz/appsettings.json", optional: true);
             config = builder.Build();
+
             // If running in production or staging, will log to file. Initialize Serilog here.
             if (!env.IsDevelopment())
             {
@@ -34,6 +38,11 @@ namespace SchatzApp
                     .WriteTo.File(config["logFileName"])
                     .CreateLogger();
             }
+
+            // Log to console (debug) or file (otherwise).
+            // Must do here, so log capture errors if singleton services throw at startup.
+            if (env.IsDevelopment()) loggerFactory.AddConsole();
+            else loggerFactory.AddSerilog();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -45,11 +54,8 @@ namespace SchatzApp
             services.AddMvc();
         }
 
-        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            // Log to console (debug) or file (otherwise).
-            if (env.IsDevelopment()) loggerFactory.AddConsole();
-            else loggerFactory.AddSerilog();
             // Static file options: inject caching info for all static files.
             StaticFileOptions sfo = new StaticFileOptions
             {

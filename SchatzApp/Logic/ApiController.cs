@@ -2,19 +2,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
+using SchatzApp.Entities;
+
 namespace SchatzApp.Logic
 {
-    public partial class ApiController : Controller
+    /// <summary>
+    /// Serves all REST API requests, including single-page app's internal content requests.
+    /// </summary>
+    public class ApiController : Controller
     {
+        /// <summary>
+        /// Provides content HTML based on relative URL of singe-page request.
+        /// </summary>
         private readonly PageProvider pageProvider;
+        /// <summary>
+        /// Provides random samples for the vocab quiz.
+        /// </summary>
         private readonly Sampler sampler;
 
+        /// <summary>
+        /// Ctor: inject dependencies.
+        /// </summary>
         public ApiController(PageProvider pageProvider, Sampler sampler)
         {
             this.pageProvider = pageProvider;
             this.sampler = sampler;
         }
 
+        /// <summary>
+        /// Ughly: handcrafted HTML (XML) string escaping.
+        /// </summary>
         private static string esc(string str, bool quotes = false)
         {
             str = str.Replace("&", "&amp;");
@@ -28,6 +45,10 @@ namespace SchatzApp.Logic
             return str;
         }
 
+        /// <summary>
+        /// Serves single-page app's dynamic content requests for in-page navigation.
+        /// </summary>
+        /// <param name="rel">Relative URL of content.</param>
         public IActionResult GetPage([FromForm] string rel)
         {
             var pi = pageProvider.GetPage(rel);
@@ -42,6 +63,9 @@ namespace SchatzApp.Logic
             return new ObjectResult(res);
         }
 
+        /// <summary>
+        /// Serves random sample for populating a quiz.
+        /// </summary>
         public IActionResult GetQuiz()
         {
             string[] sample1, sample2;
@@ -54,18 +78,12 @@ namespace SchatzApp.Logic
             return new ObjectResult(res);
         }
 
-        private class SurveyData
-        {
-            public string Native;
-            public string Age;
-            public string NativeCountry;
-            public string NativeEducation;
-            public string NativeOtherLangs;
-            public string NnCountryNow;
-            public string NnGermanTime;
-            public string NnGermanLevel;
-        }
-
+        /// <summary>
+        /// Evaluates quiz and survey; stores results; returns ID so client can navigate to results page.
+        /// </summary>
+        /// <param name="quiz">The user's quiz choices, JSON serialized in quiz.js.</param>
+        /// <param name="survey">The user's survey input (whatever was provided), JSON serialized in quiz.js.</param>
+        /// <returns></returns>
         public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey)
         {
             var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);

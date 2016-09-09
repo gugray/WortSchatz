@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -19,14 +20,19 @@ namespace SchatzApp.Logic
         /// Provides random samples for the vocab quiz.
         /// </summary>
         private readonly Sampler sampler;
+        /// <summary>
+        /// Repository of submitted quizzes.
+        /// </summary>
+        private readonly ResultRepo resultRepo;
 
         /// <summary>
         /// Ctor: inject dependencies.
         /// </summary>
-        public ApiController(PageProvider pageProvider, Sampler sampler)
+        public ApiController(PageProvider pageProvider, Sampler sampler, ResultRepo resultRepo)
         {
             this.pageProvider = pageProvider;
             this.sampler = sampler;
+            this.resultRepo = resultRepo;
         }
 
         /// <summary>
@@ -86,15 +92,32 @@ namespace SchatzApp.Logic
         /// <returns></returns>
         public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey)
         {
+            // Parse data from query
             var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);
             var oSurvey = JsonConvert.DeserializeObject<SurveyData>(survey);
+            // Have sampler evaluate result
             int score;
             char[] resCoded;
             sampler.Eval(oQuiz, out score, out resCoded);
-            if (score > 18000) score = Sampler.RoundTo(score, 500);
-            else score = Sampler.RoundTo(score, 200);
-            // TO-DO: store results; return URL of results page
-            return new ObjectResult(score);
+            // TO-DO: country from IP
+            // Request.HttpContext etc
+            // Store result
+            StoredResult sr = new StoredResult("NNN", DateTime.Now, 0, 0, score, new string(resCoded), oSurvey);
+            string uid = resultRepo.StoreResult(sr);
+            // Response is result code, pure and simple.
+            return new ObjectResult(uid);
+        }
+
+        /// <summary>
+        /// Retrieves score based on quiz's unique ID.
+        /// </summary>
+        public IActionResult GetScore([FromForm] string uid)
+        {
+            // Retrieve score
+            int score = resultRepo.LoadScore(uid);
+            // Respond
+            if (score == -1) return null;
+            else return new ObjectResult(score);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace SchatzApp.Logic
 {
@@ -54,6 +55,10 @@ namespace SchatzApp.Logic
         }
 
         /// <summary>
+        /// My own logger.
+        /// </summary>
+        private readonly ILogger logger;
+        /// <summary>
         /// Sample file name (w/o extension). Returned with each evaluation so stored data refers explicitly to sample used.
         /// </summary>
         private readonly string sampleName;
@@ -74,8 +79,10 @@ namespace SchatzApp.Logic
         /// Ctor: initialize from sample data in tab-separated format.
         /// </summary>
         /// <param name="dataFileName">File to parse for sample points.</param>
-        public Sampler(string dataFileName)
+        public Sampler(ILoggerFactory lf, string dataFileName)
         {
+            logger = lf.CreateLogger(GetType().FullName);
+            logger.LogInformation("Quiz sampler initializing...");
             sampleName = Path.GetFileNameWithoutExtension(dataFileName);
             // Read sample
             List<SamplePoint> pointList = new List<SamplePoint>();
@@ -115,6 +122,7 @@ namespace SchatzApp.Logic
                     }
                 }
             }
+            logger.LogInformation("Quiz sampler initialized.");
         }
 
         /// <summary>

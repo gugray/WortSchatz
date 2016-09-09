@@ -29,7 +29,8 @@ gulp.task('scripts', function () {
     './wwwroot/static/lib/history.min.js',
     './wwwroot/static/lib/jquery*.min.js',
     './wwwroot/static/dev-js/page.js',
-    './wwwroot/static/dev-js/quiz.js'
+    './wwwroot/static/dev-js/quiz.js',
+    './wwwroot/static/dev-js/result.js'
   ])
     .pipe(uglify())
     .pipe(concat('app.min.js'))

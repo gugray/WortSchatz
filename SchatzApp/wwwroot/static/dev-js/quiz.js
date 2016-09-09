@@ -147,10 +147,8 @@ var wsQuiz = (function () {
     req.done(function (data) {
       sessionStorage.removeItem("quiz")
       words1 = words2 = [];
-      // TO-DO: make this a redirect to proper results page
-      $("#quiz-third").removeClass("active");
-      $("#quiz-fourth-temp").addClass("active");
-      $("#quizResult").text(data);
+      // Redirect to proper results page
+      wsPage.navigateTo("/ergebnis/" + data);
     });
   }
 

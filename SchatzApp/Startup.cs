@@ -16,6 +16,7 @@ namespace SchatzApp
         private readonly IHostingEnvironment env;
         private readonly ILoggerFactory loggerFactory;
         private readonly IConfigurationRoot config;
+        private ResultRepo resultRepo = null;
 
         public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -33,34 +34,51 @@ namespace SchatzApp
             // If running in production or staging, will log to file. Initialize Serilog here.
             if (!env.IsDevelopment())
             {
-                Log.Logger = new LoggerConfiguration()
+                var seriConf = new LoggerConfiguration()
                     .MinimumLevel.Information()
-                    .WriteTo.File(config["logFileName"])
-                    .CreateLogger();
+                    .WriteTo.File(config["logFileName"]);
+                if (config["logLevel"] == "Trace") seriConf.MinimumLevel.Verbose();
+                else if (config["logLevel"] == "Debug") seriConf.MinimumLevel.Debug();
+                else if (config["logLevel"] == "Information") seriConf.MinimumLevel.Information();
+                else if (config["logLevel"] == "Warning") seriConf.MinimumLevel.Warning();
+                else if (config["logLevel"] == "Error") seriConf.MinimumLevel.Error();
+                else seriConf.MinimumLevel.Fatal();
+                Log.Logger = seriConf.CreateLogger();
             }
 
             // Log to console (debug) or file (otherwise).
             // Must do here, so log capture errors if singleton services throw at startup.
-            if (env.IsDevelopment()) loggerFactory.AddConsole();
+            LogLevel ll = LogLevel.Critical;
+            if (config["logLevel"] == "Trace") ll = LogLevel.Trace;
+            else if (config["logLevel"] == "Debug") ll = LogLevel.Debug;
+            else if (config["logLevel"] == "Information") ll = LogLevel.Information;
+            else if (config["logLevel"] == "Warning") ll = LogLevel.Warning;
+            else if (config["logLevel"] == "Error") ll = LogLevel.Error;
+            if (env.IsDevelopment()) loggerFactory.AddConsole(ll);
             else loggerFactory.AddSerilog();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             // Application-specific singletons.
-            services.AddSingleton(new PageProvider(env.IsDevelopment()));
-            services.AddSingleton(new Sampler(config["sampleFileName"]));
+            services.AddSingleton(new PageProvider(loggerFactory, env.IsDevelopment()));
+            services.AddSingleton(new Sampler(loggerFactory, config["sampleFileName"]));
+            resultRepo = new ResultRepo(loggerFactory, config["dbFileName"]);
+            services.AddSingleton(resultRepo);
             // MVC for serving pages and REST
             services.AddMvc();
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IApplicationLifetime appLife)
         {
+            // Sign up to application shutdown so we can do proper cleanup
+            appLife.ApplicationStopping.Register(onApplicationStopping);
             // Static file options: inject caching info for all static files.
             StaticFileOptions sfo = new StaticFileOptions
             {
                 OnPrepareResponse = (context) =>
                 {
+                    // TO-DO: restrict to only cache from "static/"
                     context.Context.Response.Headers["Cache-Control"] = "private, max-age=31536000";
                     context.Context.Response.Headers["Expires"] = DateTime.UtcNow.AddYears(1).ToString("R");
                 }
@@ -73,8 +91,14 @@ namespace SchatzApp
                 routes.MapRoute("api-getpage", "api/getpage/{*paras}", new { controller = "Api", action = "GetPage", paras = "" });
                 routes.MapRoute("api-getquiz", "api/getquiz/{*paras}", new { controller = "Api", action = "GetQuiz", paras = "" });
                 routes.MapRoute("api-evalquiz", "api/evalquiz/{*paras}", new { controller = "Api", action = "EvalQuiz", paras = "" });
+                routes.MapRoute("api-getscore", "api/getscore/{*paras}", new { controller = "Api", action = "GetScore", paras = "" });
                 routes.MapRoute("default", "{*paras}", new { controller = "Index", action = "Index", paras = "" });
             });
+        }
+
+        private void onApplicationStopping()
+        {
+            if (resultRepo != null) resultRepo.Dispose();
         }
     }
 }

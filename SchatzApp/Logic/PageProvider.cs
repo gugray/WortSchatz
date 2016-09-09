@@ -33,6 +33,10 @@ namespace SchatzApp.Logic
         }
 
         /// <summary>
+        /// My own logger.
+        /// </summary>
+        private readonly ILogger logger;
+        /// <summary>
         /// True if current hosting environment is Development.
         /// </summary>
         private readonly bool isDevelopment;
@@ -44,11 +48,14 @@ namespace SchatzApp.Logic
         /// <summary>
         /// Ctor: init; load pages from plain files into cache.
         /// </summary>
-        public PageProvider(bool isDevelopment)
+        public PageProvider(ILoggerFactory lf, bool isDevelopment)
         {
+            logger = lf.CreateLogger(GetType().FullName);
+            logger.LogInformation("Page provider initializing...");
             this.isDevelopment = isDevelopment;
             pageCache = new Dictionary<string, PageInfo>();
             initPageCache();
+            logger.LogInformation("Page provider initialized.");
         }
 
         /// <summary>
@@ -122,6 +129,8 @@ namespace SchatzApp.Logic
                 if (rel == string.Empty) rel = "/";
                 if (!rel.StartsWith("/")) rel = "/" + rel;
             }
+            // Custom hacks
+            if (rel.StartsWith("/ergebnis/")) rel = "/ergebnis";
             // Page or null.
             if (!pageCache.ContainsKey(rel)) return null;
             PageInfo pi = pageCache[rel];

@@ -159,8 +159,8 @@ var wsPage = (function () {
   // Updates top navigation menu to reflect where we are
   function updateMenuState() {
     $("#header-menu a").removeClass("selected");
-    if (rel == "/" || startsWith(rel, "/result")) $("#lnkTest").addClass("selected");
-    else if (startsWith(rel, "/background")) $("#lnkBackground").addClass("selected");
+    if (rel == "/" || startsWith(rel, "/ergebnis")) $("#lnkTest").addClass("selected");
+    else if (startsWith(rel, "/hintergrund")) $("#lnkBackground").addClass("selected");
   }
 
   return {
@@ -169,6 +169,12 @@ var wsPage = (function () {
       initScripts[pageRel] = init;
     },
 
+    // Retrieves relative URL of current page.
+    getRel: function() {
+      return rel;
+    },
+
+    // Navigates to provided relative URL, respecting single-page navigation.
     navigateTo: function (url) {
       history.pushState(null, null, url);
       dynNavigate();

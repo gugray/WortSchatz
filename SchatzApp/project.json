@@ -48,7 +48,8 @@
 
   "publishOptions": {
     "include": [
-      "AppIndex.cshtml",
+      "appsettings.json",
+      "Index.cshtml",
       "data",
       "html",
       "wwwroot"

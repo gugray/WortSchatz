@@ -58,7 +58,7 @@ namespace SchatzApp.Logic
         public IActionResult GetPage([FromForm] string rel)
         {
             var pi = pageProvider.GetPage(rel);
-            if (pi == null) return null;
+            if (pi == null) return new ObjectResult(null);
             PageResult res = new PageResult
             {
                 Title = pi.Title,
@@ -114,10 +114,10 @@ namespace SchatzApp.Logic
         public IActionResult GetScore([FromForm] string uid)
         {
             // Retrieve score
-            int score = resultRepo.LoadScore(uid);
+            int score = resultRepo.LoadScore(uid.Substring(0, 10));
             // Respond
-            if (score == -1) return null;
-            else return new ObjectResult(score);
+            if (score == -1) return new ObjectResult(null);
+            return new ObjectResult(score);
         }
     }
 }

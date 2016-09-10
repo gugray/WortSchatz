@@ -180,14 +180,6 @@ namespace SchatzApp.Logic
         }
 
         /// <summary>
-        /// Rounds number to the nearest 200, 500 etc. Helper for showing less-precise results in UI.
-        /// </summary>
-        public static int RoundTo(int val, int prec)
-        {
-            return (int)(Math.Round((double)val / prec) * prec);
-        }
-
-        /// <summary>
         /// Evaluates a single returned quiz.
         /// </summary>
         /// <param name="qres">Words+yes/no pairs.</param>

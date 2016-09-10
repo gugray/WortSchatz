@@ -3,3 +3,11 @@
 .result, .result div { position: relative; float: left; clear: both; width: 100%; text-align: center; }
 .result-heading { font-size: 24pt; font-weight: 700; }
 #result-value { font-size: 48pt; font-weight: 700; color: @clrGreenText; font-family: "Roboto", sans-serif; }
+#result-details { margin-top: 30pt; opacity: 0; transition: opacity ease-in 1s; }
+#result-details.visible { opacity: 1; }
+#result-link { text-decoration: none; color: @clrRedBase; }
+#fb-share-link {
+  display: inline-block; background-color: #3b579d; color: white; margin-top: 20pt;
+  padding: 5pt 12pt 5pt 10pt; font-family: Roboto, sans-serif; font-weight: 700; text-decoration: none;
+}
+

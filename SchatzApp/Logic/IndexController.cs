@@ -7,6 +7,7 @@ namespace SchatzApp.Logic
     /// <summary>
     /// Serves page of single-page app (we only have one page).
     /// </summary>
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class IndexController : Controller
     {
         /// <summary>
@@ -15,11 +16,17 @@ namespace SchatzApp.Logic
         private readonly PageProvider pageProvider;
 
         /// <summary>
+        /// Results repository.
+        /// </summary>
+        private readonly ResultRepo resultRepo;
+
+        /// <summary>
         /// Ctor: infuse dependencies.
         /// </summary>
-        public IndexController(PageProvider pageProvider)
+        public IndexController(PageProvider pageProvider, ResultRepo resultRepo)
         {
             this.pageProvider = pageProvider;
+            this.resultRepo = resultRepo;
         }
 
         /// <summary>
@@ -29,10 +36,20 @@ namespace SchatzApp.Logic
         public IActionResult Index(string paras)
         {
             var pi = pageProvider.GetPage(paras);
-            if (pi == null) return null;
+            if (pi == null) return new ObjectResult(null);
+            // If it's the results page, we cheat: retrieve score and fill title right here
+            // Needed so Facebook shows my actual number when sharing
+            string title = pi.Title;
+            if (pi.RelNorm.StartsWith("/ergebnis/"))
+            {
+                string uid = pi.RelNorm.Replace("/ergebnis/", "");
+                uid = uid.Substring(0, 10);
+                int score = resultRepo.LoadScore(uid);
+                title = title.Replace("*", score.ToString());
+            }
             PageResult res = new PageResult
             {
-                Title = pi.Title,
+                Title = title,
                 Description = pi.Description,
                 Keywords = pi.Keywords,
                 Html = pi.Html

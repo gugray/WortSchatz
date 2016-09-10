@@ -92,11 +92,11 @@ namespace SchatzApp.Logic
             bool first = true;
             foreach (var x in survey)
             {
+                if (!first) sb.Append(';');
+                else first = false;
                 sb.Append(x.Key);
                 sb.Append('=');
                 sb.Append(x.Value);
-                if (!first) sb.Append(';');
-                else first = false;
             }
             return sb.ToString();
         }

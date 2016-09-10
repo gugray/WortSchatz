@@ -28,6 +28,7 @@ gulp.task('scripts', function () {
   return gulp.src([
     './wwwroot/static/lib/history.min.js',
     './wwwroot/static/lib/jquery*.min.js',
+    './wwwroot/static/lib/countUp.js',
     './wwwroot/static/dev-js/page.js',
     './wwwroot/static/dev-js/quiz.js',
     './wwwroot/static/dev-js/result.js'

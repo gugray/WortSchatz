@@ -6,6 +6,10 @@
     public class PageResult
     {
         /// <summary>
+        /// The page's normalized relative URL.
+        /// </summary>
+        public string RelNorm;
+        /// <summary>
         /// The requested page's title.
         /// </summary>
         public string Title;

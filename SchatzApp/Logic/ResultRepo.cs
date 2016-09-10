@@ -174,6 +174,17 @@ namespace SchatzApp.Logic
         }
 
         /// <summary>
+        /// Rounds number to the nearest 100, 200, 500 etc. Helper for showing less-precise results in UI.
+        /// </summary>
+        private static int roundScore(int rawScore)
+        {
+            int prec = 500;
+            if (rawScore < 18000) prec = 200;
+            if (rawScore < 9000) prec = 100;
+            return (int)(Math.Round((double)rawScore / prec) * prec);
+        }
+
+        /// <summary>
         /// Retrieves stored score by 10-character alphanumeric ID.
         /// </summary>
         /// <param name="uidStr">The result's UID.</param>
@@ -186,7 +197,11 @@ namespace SchatzApp.Logic
                 cmdSelScore.Parameters["@uid"].Value = uid;
                 using (var rdr = cmdSelScore.ExecuteReader())
                 {
-                    while (rdr.Read()) { return rdr.GetInt32(0); }
+                    while (rdr.Read())
+                    {
+                        int score = rdr.GetInt32(0);
+                        return roundScore(score);
+                    }
                 }
             }
             return -1;

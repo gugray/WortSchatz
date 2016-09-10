@@ -130,12 +130,14 @@ namespace SchatzApp.Logic
                 if (!rel.StartsWith("/")) rel = "/" + rel;
             }
             // Custom hacks
-            if (rel.StartsWith("/ergebnis/")) rel = "/ergebnis";
+            string key = rel;
+            if (key.StartsWith("/ergebnis/")) key = "/ergebnis";
             // Page or null.
-            if (!pageCache.ContainsKey(rel)) return null;
-            PageInfo pi = pageCache[rel];
+            if (!pageCache.ContainsKey(key)) return null;
+            PageInfo pi = pageCache[key];
             PageResult pr = new PageResult
             {
+                RelNorm = rel,
                 Title = pi.Title,
                 Description = pi.Description,
                 Keywords = pi.Keywords,

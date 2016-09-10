@@ -7,7 +7,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
   <title>@Model.Title</title>
-  <meta name="google" content="notranslate">
+  <meta name="description" content="@Model.Description" />
+  <meta property="og:title" content="@Model.Title" />
+  <meta property="og:description" content="@Model.Description" />
+  <meta property="og:locale" content="de_DE" />
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&subset=latin-ext" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,700&subset=latin-ext" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
@@ -46,6 +49,7 @@
   <environment names="Development">
     <script src="/static/lib/history.min.js"></script>
     <script src="/static/lib/jquery-2.1.4.min.js"></script>
+    <script src="/static/lib/countUp.js"></script>
     <script src="/static/dev-js/page.js"></script>
     <script src="/static/dev-js/quiz.js"></script>
     <script src="/static/dev-js/result.js"></script>

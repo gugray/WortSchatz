@@ -122,5 +122,26 @@ namespace SchatzApp.Logic
                 survey[kv[0]] = kv[1];
             }
         }
+
+        private const string txtTemplate = "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}";
+
+        /// <summary>
+        /// Gets header line for tab-separated export.
+        /// </summary>
+        public static string GetTSVHeader()
+        {
+            return string.Format(txtTemplate, "date", "country", "prev_quiz_cnt", "prev_survey_cnt",
+                "score", "enc_res", "enc_survey");
+        }
+
+        /// <summary>
+        /// Gets the result in tab-separated format for TXT export.
+        /// </summary>
+        public string GetTSV()
+        {
+            string dateStr = Date.Year.ToString("0000") + "-" + Date.Month.ToString("00") + "-" + Date.Day.ToString("00");
+            return string.Format(txtTemplate, dateStr, CountryCode, PrevQuizCount, PrevSurveyCount,
+                Score, EncodedResult, GetEncodedSurvey());
+        }
     }
 }

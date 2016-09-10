@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SchatzStress": {
+      "commandName": "Project",
+      "commandLineArgs": "--dbdump"
+    }
+  }
+}

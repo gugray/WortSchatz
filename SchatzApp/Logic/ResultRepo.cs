@@ -17,6 +17,10 @@ namespace SchatzApp.Logic
         /// </summary>
         private readonly ILogger logger;
         /// <summary>
+        /// Absolute path to DB file name.
+        /// </summary>
+        private readonly string dbFileNameAbs;
+        /// <summary>
         /// Single connection maintained throughout instance's lifetime.
         /// </summary>
         private readonly SqliteConnection conn;
@@ -43,10 +47,9 @@ namespace SchatzApp.Logic
             VALUES (@uid, @country, @quiz_ix, @survey_ix, @score, @res_enc, @survey_enc);";
         private SqliteCommand cmdInsertResult = null;
 
-        private const string sqlSelResult = @"
+        private const string sqlSelAll = @"
             SELECT uid, country, quiz_ix, survey_ix, score, res_enc, survey_enc
-            FROM results WHERE uid=@uid;";
-        private SqliteCommand cmdSelResult = null;
+            FROM results ORDER BY uid ASC;";
 
         private const string sqlSelScore = @"SELECT score FROM results WHERE uid=@uid;";
         private SqliteCommand cmdSelScore = null;
@@ -56,25 +59,36 @@ namespace SchatzApp.Logic
         /// </summary>
         public ResultRepo(ILoggerFactory lf, string dbFileName)
         {
-            logger = lf.CreateLogger(GetType().FullName);
+            if (lf != null) logger = lf.CreateLogger(GetType().FullName);
+            else logger = new DummyLogger();
             logger.LogInformation("Results repository initializing...");
 
             // SQLite is unhappy about Linux-style relative paths, which we want to use in development environment
             // This conversion to absolute path works around that.
-            string dbFileNameAbs = Path.GetFullPath(dbFileName);
-            bool dbExists = File.Exists(dbFileNameAbs);
-            SqliteConnectionStringBuilder csb = new SqliteConnectionStringBuilder
-            {
-                DataSource = dbFileNameAbs,
-                Mode = SqliteOpenMode.ReadWriteCreate
-            };
-            conn = new SqliteConnection();
-            conn.ConnectionString = csb.ConnectionString;
-            conn.Open();
+            dbFileNameAbs = Path.GetFullPath(dbFileName);
+            bool dbExists;
+            getOpenConn(out conn, out dbExists);
             if (!dbExists) initDB();
             prepareCommands();
 
             logger.LogInformation("Results repository initialized.");
+        }
+
+        /// <summary>
+        /// Returns a new, open connection to the DB.
+        /// </summary>
+        private void getOpenConn(out SqliteConnection res, out bool dbExists)
+        {
+            dbExists = File.Exists(dbFileNameAbs);
+            SqliteConnectionStringBuilder csb = new SqliteConnectionStringBuilder
+            {
+                DataSource = dbFileNameAbs,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Shared
+            };
+            res = new SqliteConnection();
+            res.ConnectionString = csb.ConnectionString;
+            res.Open();
         }
 
         /// <summary>
@@ -112,11 +126,6 @@ namespace SchatzApp.Logic
             cmdInsertResult.Parameters.Add("@survey_enc", SqliteType.Text);
             cmdInsertResult.Prepare();
 
-            cmdSelResult = conn.CreateCommand();
-            cmdSelResult.CommandText = sqlSelResult;
-            cmdSelResult.Parameters.Add("@uid", SqliteType.Integer);
-            cmdSelResult.Prepare();
-
             cmdSelScore = conn.CreateCommand();
             cmdSelScore.CommandText = sqlSelScore;
             cmdSelScore.Parameters.Add("@uid", SqliteType.Integer);
@@ -130,6 +139,15 @@ namespace SchatzApp.Logic
         /// <returns>The stored item's ID, encoded as a 10-character alphanumeric string.</returns>
         public string StoreResult(StoredResult sr)
         {
+            return StoreBatch(sr, 1);
+        }
+
+        /// <summary>
+        /// Diagnostic function: stores same item N times in a single transaction. Used to grow DB in stress test.
+        /// </summary>
+        /// <returns>UID of last stored item.</returns>
+        public string StoreBatch(StoredResult sr, int count)
+        {
             long uid = 0;
             lock (conn)
             {
@@ -137,8 +155,11 @@ namespace SchatzApp.Logic
                 try
                 {
                     trans = conn.BeginTransaction();
-                    uid = getNextUid(sr.Date, trans);
-                    storeResult(uid, trans, sr);
+                    for (int i = 0; i != count; ++i)
+                    {
+                        uid = getNextUid(sr.Date, trans);
+                        storeResult(uid, trans, sr);
+                    }
                     trans.Commit(); trans.Dispose(); trans = null;
                 }
                 catch (Exception ex)
@@ -160,11 +181,6 @@ namespace SchatzApp.Logic
         public int LoadScore(string uidStr)
         {
             long uid = stringToUid(uidStr);
-            //int dateNum = (int)(uid / 1000000);
-            //int xDay = dateNum % 100; dateNum /= 100;
-            //int xMonth = dateNum % 100; dateNum /= 100;
-            //int xYear = dateNum;
-            //DateTime date = new DateTime(xYear, xMonth, xDay);
             lock (conn)
             {
                 cmdSelScore.Parameters["@uid"].Value = uid;
@@ -174,6 +190,61 @@ namespace SchatzApp.Logic
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Dumps entire repository into TSV file.
+        /// </summary>
+        public void DumpToFile(string tsvFileName)
+        {
+            SqliteConnection dumpConn = null;
+            SqliteCommand cmdSelAll = null;
+            try
+            {
+                // For the dump, we use a separate connection
+                // This allows main connection to be safely accessed from other threads while dump is in progress
+                bool dbExists;
+                getOpenConn(out dumpConn, out dbExists);
+
+                using (SqliteCommand cmdPragma = dumpConn.CreateCommand())
+                {
+                    // This pragma is a MUST to avoid locking the DB for the duration of the dump
+                    // Without it, concurrent store requests will time out.
+                    cmdPragma.CommandText = "PRAGMA read_uncommitted = 1;";
+                    cmdPragma.ExecuteNonQuery();
+                }
+
+                // Dumping is rare. No need to prepare and reuse this command.
+                cmdSelAll = dumpConn.CreateCommand();
+                cmdSelAll.CommandText = sqlSelAll;
+                cmdSelAll.Prepare();
+
+                // Write from reader, straight to output file.
+                using (FileStream fs = new FileStream(tsvFileName, FileMode.Create, FileAccess.ReadWrite))
+                using (StreamWriter sw = new StreamWriter(fs))
+                using (var rdr = cmdSelAll.ExecuteReader())
+                {
+                    sw.WriteLine(StoredResult.GetTSVHeader());
+                    while (rdr.Read())
+                    {
+                        // uid, country, quiz_ix, survey_ix, score, res_enc, survey_enc
+                        int dateNum = (int)(rdr.GetInt64(0) / 1000000);
+                        int xDay = dateNum % 100; dateNum /= 100;
+                        int xMonth = dateNum % 100; dateNum /= 100;
+                        int xYear = dateNum;
+                        DateTime date = new DateTime(xYear, xMonth, xDay);
+                        StoredResult sr = new StoredResult(rdr.GetString(1), date, rdr.GetInt32(2), rdr.GetInt32(3),
+                            rdr.GetInt32(4), rdr.GetString(5), rdr.GetString(6));
+                        sw.WriteLine(sr.GetTSV());
+                    }
+                }
+                dumpConn.Close();
+            }
+            finally
+            {
+                if (cmdSelAll != null) cmdSelAll.Dispose();
+                if (dumpConn != null) dumpConn.Dispose();
+            }
         }
 
         /// <summary>
@@ -283,7 +354,6 @@ namespace SchatzApp.Logic
             logger.LogInformation("Results repository disposing...");
 
             if (cmdSelScore != null) cmdSelScore.Dispose();
-            if (cmdSelResult != null) cmdSelResult.Dispose();
             if (cmdInsertResult != null) cmdInsertResult.Dispose();
             if (cmdSelectMaxDayId != null) cmdSelectMaxDayId.Dispose();
             if (conn != null) { conn.Close(); conn.Dispose(); }

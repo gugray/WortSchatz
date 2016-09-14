@@ -131,12 +131,14 @@ var wsQuiz = (function () {
   // Submit all results (quiz and survey); navigate to results page when request finishes.
   function submitResults() {
     $("#donePage03").addClass("disabled");
+    // Gather data and counts
     var quiz = gatherQuizInput();
     var survey = gatherSurveyInput();
+    var counts = getIncrementCounts("native" in survey);
     // Make request
     ++reqId;
     var id = reqId;
-    var data = { quiz: JSON.stringify(quiz), survey: JSON.stringify(survey) };
+    var data = { quiz: JSON.stringify(quiz), survey: JSON.stringify(survey), quizCount: counts.quizCount, surveyCount: counts.surveyCount };
     // Submit request
     var req = $.ajax({
       url: "/api/evalquiz",
@@ -150,6 +152,20 @@ var wsQuiz = (function () {
       // Redirect to proper results page
       wsPage.navigateTo("/ergebnis/" + data);
     });
+  }
+
+  // Gets count of previously submitted quizzes and surveys; increments counts in local storage.
+  function getIncrementCounts(hasSurvey) {
+    var quizCount = 0;
+    var surveyCount = 0;
+    if (localStorage.getItem("quizcount") != null) quizCount = localStorage.getItem("quizcount");
+    if (localStorage.getItem("surveycount") != null) surveyCount = localStorage.getItem("surveycount");
+    var res = { quizCount: quizCount, surveyCount: surveyCount };
+    ++quizCount;
+    if (hasSurvey) ++surveyCount;
+    localStorage.setItem("quizcount", quizCount);
+    localStorage.setItem("surveycount", surveyCount);
+    return res;
   }
 
   // Retrieves user input from quiz

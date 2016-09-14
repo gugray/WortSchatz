@@ -90,7 +90,8 @@ namespace SchatzApp.Logic
         /// <param name="quiz">The user's quiz choices, JSON serialized in quiz.js.</param>
         /// <param name="survey">The user's survey input (whatever was provided), JSON serialized in quiz.js.</param>
         /// <returns></returns>
-        public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey)
+        public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey,
+            [FromForm] string quizCount, [FromForm] string surveyCount)
         {
             // Parse data from query
             var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);

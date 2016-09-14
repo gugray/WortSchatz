@@ -67,6 +67,8 @@ namespace SchatzApp
             services.AddSingleton(resultRepo);
             // MVC for serving pages and REST
             services.AddMvc();
+            // Configuration singleton
+            services.AddSingleton<IConfiguration>(sp => { return config; });
         }
 
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLife)

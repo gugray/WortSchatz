@@ -165,6 +165,10 @@ var wsPage = (function () {
       localStorage.setItem("cookies", "go");
       evt.preventDefault();
     });
+    // Link to imprint
+    $("#imprint").click(function () {
+      window.open("/impressum");
+    });
   }
 
   // Updates top navigation menu to reflect where we are

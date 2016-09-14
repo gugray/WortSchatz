@@ -38,12 +38,16 @@
       </div>
     </div>
   </div>
-  <div id="centrer">
-    <div id="content">
-      @Html.Raw(Model.Html)
+  <div id="hwrap">
+    <div id="centrer">
+      <div id="content">
+        @Html.Raw(Model.Html)
+      </div>
     </div>
-    <div style="margin-bottom: 400pt;">&nbsp;</div>
-    <div id="footSpacer">&nbsp;</div>
+    <div id="push"></div>
+  </div>
+  <div id="footer">
+    &copy; 2016 Gabor L Ugray &bull; <span id="imprint">Impressum</span>
   </div>
 
   <environment names="Development">

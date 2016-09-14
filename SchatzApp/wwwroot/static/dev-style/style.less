@@ -1,10 +1,12 @@
 ﻿@import "defines.less";
 
+html { height: 100%; }
+
 body {
   margin: 0; padding: 0;
   background-color: white;
   position: relative;
-  width: 100%;
+  width: 100%; height: 100%;
   font-family: @fontSerif;
   color: @clrText;
   font-size: 12pt;
@@ -32,9 +34,32 @@ body {
 }
 #header-menu a:hover, #header-menu a.selected { border-top-color: @clrText; }
 
-#centrer { position: relative; width: @contWidthFull; margin: @headerHeight + 20pt auto 0 auto; }
+#hwrap {
+  position: relative; float: left; width: 100%;
+  min-height: 100%; height: auto !important; height: 100%;
+  //border: 1px solid blue;
+  margin: 0 auto -@footerHeight;
+}
+
+#centrer {
+  position: relative; width: @contWidthFull; box-sizing: border-box;
+  max-width: 100%; overflow-x: hidden; overflow-y: auto;
+  margin: @headerHeight + 20pt auto 0 auto;
+  //border: 1px solid red;
+}
 
 #content.fading { opacity: 0.5; }
 
-#footSpacer { height: 40pt; position: relative; float: left; clear: both; }
+// Always-at-bottom footer: http://stackoverflow.com/a/8815810
+// http://ryanfait.com/sticky-footer/
+#push { height: @footerHeight }
+#footer {
+  box-sizing: border-box; height: @footerHeight;
+  //background-color: lavenderblush;
+  position: relative; width: 100%; text-align: center;
+  overflow-y: auto;
+  font-size: 8pt; font-family: @fontSans;
+  padding-top: 55pt;
+}
 
+#imprint { color: @clrGreenText; cursor: pointer; }

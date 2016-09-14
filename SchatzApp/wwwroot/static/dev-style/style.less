@@ -63,3 +63,20 @@ body {
 }
 
 #imprint { color: @clrGreenText; cursor: pointer; }
+
+#bittercookie {
+  display: none; position: fixed; bottom: 0; width: 100%;
+  text-align: center; background-color: #5a5a5a; color: white;
+  margin-bottom: -1px; border: 0; padding: 4pt 0 4pt 0;
+  font-family: @fontSans; font-size: 10pt;
+  opacity: 0.9;
+  a {
+    background-color: #272727; color: white; text-decoration: none;
+    padding: 2pt 4pt 2pt 4pt; margin-left: 3pt; margin-right: 3pt; cursor: default;
+    border-radius: 3pt; white-space: nowrap;
+    &:hover { color: #d9d9d9; }
+  }
+  div { box-sizing: border-box; position: relative; }
+  & div:nth-child(1) { width: 80%; float: left; padding: 0 10pt 0 20pt; text-align: right; }
+  & div:nth-child(2) { width: 20%; float: right; padding-right: 20pt; text-align: left; line-height: 18pt; }
+}

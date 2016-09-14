@@ -42,6 +42,8 @@ var wsPage = (function () {
     parseLocation();
     // Update menu to show where I am (will soon end up being)
     updateMenuState();
+    // Overall UI event handlers, including cookie bar
+    initGui();
     // Request dynamic page - async
     // Skipped if we received page with content present already
     var hasContent = $("body").hasClass("has-initial-content");
@@ -151,9 +153,18 @@ var wsPage = (function () {
     $(window).on('popstate', function (e) {
       dynNavigate();
     });
+  }
 
-    // *NOW* that we're all done, show page.
-    //$("#thePage").css("visibility", "visible");
+  // General UI event wireup
+  function initGui() {
+    // Cookie warning / opt-in pest
+    var cookies = localStorage.getItem("cookies");
+    if (cookies != "go") $("#bittercookie").css("display", "block");
+    $("#swallowbitterpill").click(function (evt) {
+      $("#bittercookie").css("display", "none");
+      localStorage.setItem("cookies", "go");
+      evt.preventDefault();
+    });
   }
 
   // Updates top navigation menu to reflect where we are

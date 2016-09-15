@@ -152,6 +152,8 @@ var wsQuiz = (function () {
       // Redirect to proper results page
       wsPage.navigateTo("/ergebnis/" + data);
     });
+    // Track as GA event: quiz submitted
+    ga("send", "event", "quiz", "submit");
   }
 
   // Gets count of previously submitted quizzes and surveys; increments counts in local storage.

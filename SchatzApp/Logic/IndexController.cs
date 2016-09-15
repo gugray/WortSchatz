@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 using SchatzApp.Entities;
 
@@ -14,19 +15,23 @@ namespace SchatzApp.Logic
         /// Provides content HTML based on relative URL of request.
         /// </summary>
         private readonly PageProvider pageProvider;
-
         /// <summary>
         /// Results repository.
         /// </summary>
         private readonly ResultRepo resultRepo;
+        /// <summary>
+        /// Google Analytics code.
+        /// </summary>
+        private readonly string gaCode;
 
         /// <summary>
         /// Ctor: infuse dependencies.
         /// </summary>
-        public IndexController(PageProvider pageProvider, ResultRepo resultRepo)
+        public IndexController(PageProvider pageProvider, ResultRepo resultRepo, IConfiguration config)
         {
             this.pageProvider = pageProvider;
             this.resultRepo = resultRepo;
+            gaCode = config["gaCode"];
         }
 
         /// <summary>
@@ -47,14 +52,15 @@ namespace SchatzApp.Logic
                 int score = resultRepo.LoadScore(uid);
                 title = title.Replace("*", score.ToString());
             }
-            PageResult res = new PageResult
+            PageResult pr = new PageResult
             {
                 Title = title,
                 Description = pi.Description,
                 Keywords = pi.Keywords,
                 Html = pi.Html
             };
-            return View("/Index.cshtml", res);
+            IndexModel model = new IndexModel(pr, gaCode);
+            return View("/Index.cshtml", model);
         }
     }
 }

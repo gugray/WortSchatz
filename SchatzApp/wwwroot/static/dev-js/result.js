@@ -43,10 +43,14 @@ var wsResult = (function () {
       $("#result-link").attr("href", window.location.href);
       $("#result-link").text(window.location.href);
       $("#result-details").addClass("visible");
-      var fbShareHref = "https://facebook.com/sharer/sharer.php?u=http://wortschatz.tk/ergebnis/" + mID[1] + "/share";
+      var fbShareHref = "https://facebook.com/sharer/sharer.php?u=https://wortschatz.tk/ergebnis/" + mID[1] + "/share";
       $("#fb-share-link").attr("href", fbShareHref);
       // Update title
       $(document).prop("title", "Meine deutsche Wortschatzgröße ist ungefähr " + data);
+      // When share link is clicked: also record GA event
+      $("#fb-share-link").click(function () {
+        ga("send", "event", "result", "fbshared");
+      });
     });
   }
 

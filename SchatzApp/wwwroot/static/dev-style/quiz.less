@@ -36,27 +36,33 @@
   cursor: default; font-size: 11pt; border-spacing: 3pt;
 }
 .quizRow { display: table-row; margin: 2pt 0 2pt 0; width: 100%; }
-.quizCell { display: table-cell; box-sizing: border-box; padding: 4pt; width: 25%; }
-.quizCell:hover { background-color: @clrGreenHover; }
-.quizCell.selected { background-color: @clrGreenSelected; }
+.quizCell {
+  display: table-cell; box-sizing: border-box; padding: 4pt; width: 25%;
+  &:hover { background-color: @clrGreenHover; }
+  &.selected { background-color: @clrGreenSelected; }
+}
 
 #quiz-survey, .quiz-survey-item { position: relative; float: left; clear: both; width: 100%; }
 #quiz-survey { margin-top: 20pt; font-size: 12pt; }
 .quiz-survey-item { margin-top: 15pt; }
-.quiz-survey-section { display: none; }
-.quiz-survey-section.visible { display: block; }
+.quiz-survey-section { display: none; &.visible { display: block; } }
 .quiz-survey-question { position: relative; float: left; width: 290pt; }
 .quiz-survey-answer { position: relative; float: left; }
 .quiz-survey-choice {
   display: inline-block; padding: 2pt 12pt 2pt 12pt; margin: 0 4pt 6pt 0; font-weight: 700; 
   cursor: default; border: 1px solid @clrLightBorder;
+  &:hover { background-color: @clrGreenHover; }
+  &.selected { background-color: @clrGreenSelected; }
 }
-.quiz-survey-choice:hover { background-color: @clrGreenHover; }
-.quiz-survey-choice.selected { background-color: @clrGreenSelected; }
 .field-box { background-color: @clrField; margin: -4pt 0 0 0; padding: 4pt 2pt 4pt 2pt; }
 .field {
   border: 0; outline: none; margin: 0; background-color: @clrField; color: @clrText;
   font-family: @fontSerif; font-size: 12pt; font-weight: 700;
+}
+#quiz-survey-clear {
+  position: relative; float: left; padding-top: 3pt; margin-left: 10pt; display: none;
+  font-size: 10pt; color: @clrRedBase; cursor: default;
+  &.visible { display: block; }
 }
 #survAge { width: 40pt; text-align: center; }
 

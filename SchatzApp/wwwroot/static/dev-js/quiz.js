@@ -109,8 +109,31 @@ var wsQuiz = (function () {
     $(".quiz-survey-choice").bind("tap", onSingleChoiceClick);
   }
 
+  // Clears survey input.
+  function onClearSurvey() {
+    // Remove "selected" class from all choices
+    $(".quiz-survey-choice").removeClass("selected");
+    // Clear age too
+    $("#survAge").val("");
+    // Hide optional survey sections
+    $("#surveyNonNative").removeClass("visible");
+    $("#surveyNative").removeClass("visible");
+    // Hide clear command
+    $("#quiz-survey-clear").removeClass("visible");
+  }
+
+  // Shows and enables "clear survey" command.
+  function enableClearSurveyCommand() {
+    if ($("#quiz-survey-clear").hasClass("visible")) return;
+    $("#quiz-survey-clear").addClass("visible");
+    $("#quiz-survey-clear").click(onClearSurvey);
+    $("#quiz-survey-clear").bind("tap", onClearSurvey);
+  }
+
   // Event handler: select clicked/tapped item in single-choice answer set.
   function onSingleChoiceClick() {
+    // Whatever is clicked, it means we have survey input. Show "clear" command!
+    enableClearSurveyCommand();
     // Find parent with quiz-survey-item class: that's our "group"
     var surveyItem = $(this).parents(".quiz-survey-item");
     // Remove "selected" class from all choices

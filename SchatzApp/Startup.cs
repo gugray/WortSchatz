@@ -80,9 +80,19 @@ namespace SchatzApp
             {
                 OnPrepareResponse = (context) =>
                 {
-                    // TO-DO: restrict to only cache from "static/"
-                    context.Context.Response.Headers["Cache-Control"] = "private, max-age=31536000";
-                    context.Context.Response.Headers["Expires"] = DateTime.UtcNow.AddYears(1).ToString("R");
+                    // For all stuff coming from "/static/**", add directly to cache indefinitely.
+                    if (context.Context.Request.Path.Value.StartsWith("/static/"))
+                    {
+                        context.Context.Response.Headers["Cache-Control"] = "private, max-age=31536000";
+                        context.Context.Response.Headers["Expires"] = DateTime.UtcNow.AddYears(1).ToString("R");
+                    }
+                    // For everything coming from "/files/**", disable caching
+                    else if (context.Context.Request.Path.Value.StartsWith("/files/"))
+                    {
+                        context.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                        context.Context.Response.Headers["Pragma"] = "no-cache";
+                        context.Context.Response.Headers["Expires"] = "0";
+                    }
                 }
             };
             // Static files (JS, CSS etc.) served directly.

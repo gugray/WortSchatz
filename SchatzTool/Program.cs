@@ -35,6 +35,10 @@ namespace SchatzTool
             Console.WriteLine("  <enriched-OpenThesaurus-file>");
             Console.WriteLine("  <output-folder>");
             Console.WriteLine("  ** Generates samples from the OT data enriched with DeGeWo ranks.");
+            Console.WriteLine("--cloudtext");
+            Console.WriteLine("  <quiz-sample-file>");
+            Console.WriteLine("  <output-file>");
+            Console.WriteLine("  ** Generates dummy text from actual sample for word cloud.");
         }
 
         private static TaskBase parseArgs(string[] args)
@@ -64,6 +68,11 @@ namespace SchatzTool
             {
                 if (args.Length != 3) return null;
                 return new PropSample(args[1], args[2]);
+            }
+            else if (args[0] == "--cloudtext")
+            {
+                if (args.Length != 3) return null;
+                return new CloudText(args[1], args[2]);
             }
             return null;
         }

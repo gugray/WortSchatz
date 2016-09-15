@@ -12,3 +12,6 @@ Simulate test with 50k words, different level of knowledge in different regions,
 
 Generates samples from the OT data enriched with DeGeWo ranks
 --propsample _work\10-openthesaurus.txt _work
+
+Generates dummy text from actual sample for word cloud
+--cloudtext _work\sv10.txt _work\40-cloud.txt

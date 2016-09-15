@@ -2,7 +2,7 @@
   "profiles": {
     "SchatzTool": {
       "commandName": "Project",
-      "commandLineArgs": "--propsample _work\\10-openthesaurus.txt _work",
+      "commandLineArgs": "--cloudtext _work\\sv10.txt _work\\40-cloud.txt",
       "workingDirectory": "D:\\Development\\Wortschatz"
     }
   }

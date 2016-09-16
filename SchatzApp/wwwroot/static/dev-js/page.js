@@ -59,7 +59,8 @@ var wsPage = (function () {
         data: data
       });
       req.done(function (data) {
-        dynReady(data, id);
+        if (data == undefined || data == null) applyFailHtml();
+        else dynReady(data, id);
       });
       req.fail(function (jqXHR, textStatus, error) {
         applyFailHtml();
@@ -89,7 +90,8 @@ var wsPage = (function () {
       data: data
     });
     req.done(function (data) {
-      navReady(data, id);
+      if (data == undefined || data == null) applyFailHtml();
+      else navReady(data, id);
     });
     req.fail(function (jqXHR, textStatus, error) {
       applyFailHtml();

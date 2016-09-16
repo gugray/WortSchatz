@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
@@ -207,10 +208,49 @@ namespace SchatzApp.Logic
             return -1;
         }
 
+        private object bgDumpFlagLock = new object();
+        private bool bgDumpFlag = false;
+
+        /// <summary>
+        /// Dumps quiz/survey data to file in BG thread
+        /// </summary>
+        /// <returns>Fale if a dump is already in progress; true if new one is now started.</returns>
+        public bool DumpToFileAsync(string tsvFileName)
+        {
+            lock (bgDumpFlagLock)
+            {
+                if (bgDumpFlag) return false;
+                bgDumpFlag = true;
+            }
+            ThreadPool.QueueUserWorkItem(dumpThreadFun, tsvFileName);
+            return true;
+        }
+
+        /// <summary>
+        /// BG thread function that invokes dump; clears flag when done.
+        /// </summary>
+        private void dumpThreadFun(object o)
+        {
+            try { doDumpToFile((string)o); }
+            catch (Exception ex) { logger.LogError(new EventId(), ex, "Background dump failed"); }
+            finally
+            {
+                lock (bgDumpFlagLock) { bgDumpFlag = false; }
+            }
+        }
+
         /// <summary>
         /// Dumps entire repository into TSV file.
         /// </summary>
         public void DumpToFile(string tsvFileName)
+        {
+            doDumpToFile(tsvFileName);
+        }
+
+        /// <summary>
+        /// Performs actual dump.
+        /// </summary>
+        private void doDumpToFile(string tsvFileName)
         {
             SqliteConnection dumpConn = null;
             SqliteCommand cmdSelAll = null;

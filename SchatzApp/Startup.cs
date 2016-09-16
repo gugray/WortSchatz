@@ -104,6 +104,7 @@ namespace SchatzApp
                 routes.MapRoute("api-getquiz", "api/getquiz/{*paras}", new { controller = "Api", action = "GetQuiz", paras = "" });
                 routes.MapRoute("api-evalquiz", "api/evalquiz/{*paras}", new { controller = "Api", action = "EvalQuiz", paras = "" });
                 routes.MapRoute("api-getscore", "api/getscore/{*paras}", new { controller = "Api", action = "GetScore", paras = "" });
+                routes.MapRoute("api-export", "api/export/{*paras}", new { controller = "Api", action = "Export", paras = "" });
                 routes.MapRoute("default", "{*paras}", new { controller = "Index", action = "Index", paras = "" });
             });
         }

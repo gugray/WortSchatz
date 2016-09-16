@@ -19,12 +19,14 @@ namespace SchatzApp.Logic
         /// </summary>
         public class PageInfo
         {
+            public readonly bool DirectOnly;
             public readonly string Title;
             public readonly string Keywords;
             public readonly string Description;
             public readonly string Html;
-            public PageInfo(string title, string keywords, string description, string html)
+            public PageInfo(bool directOnly, string title, string keywords, string description, string html)
             {
+                DirectOnly = directOnly;
                 Title = title;
                 Keywords = keywords;
                 Description = description;
@@ -79,7 +81,7 @@ namespace SchatzApp.Logic
         /// <summary>
         /// Regex to identify/extract metainformation included in HTML files as funny SPANs.
         /// </summary>
-        private readonly Regex reMetaSpan = new Regex("<span id=\"x\\-([^\"]+)\">([^<]+)<\\/span>");
+        private readonly Regex reMetaSpan = new Regex("<span id=\"x\\-([^\"]+)\">([^<]*)<\\/span>");
 
         /// <summary>
         /// Loads and parses a single page.
@@ -87,6 +89,7 @@ namespace SchatzApp.Logic
         private PageInfo loadPage(string fileName, out string rel)
         {
             StringBuilder html = new StringBuilder();
+            bool directOnly = false;
             string title = string.Empty;
             string description = string.Empty;
             string keywords = string.Empty;
@@ -108,15 +111,16 @@ namespace SchatzApp.Logic
                     else if (key == "description") description = m.Groups[2].Value;
                     else if (key == "keywords") keywords = m.Groups[2].Value;
                     else if (key == "rel") rel = m.Groups[2].Value;
+                    else if (key == "directonly") directOnly = true;
                 }
             }
-            return new PageInfo(title, keywords, description, html.ToString());
+            return new PageInfo(directOnly, title, keywords, description, html.ToString());
         }
 
         /// <summary>
         /// Returns a page by relative URL, or null if not present.
         /// </summary>
-        public PageResult GetPage(string rel)
+        public PageResult GetPage(string rel, bool direct)
         {
             // At development, we reload entire cache with each request so HTML files can be edited on the fly.
             if (isDevelopment) initPageCache();
@@ -135,6 +139,8 @@ namespace SchatzApp.Logic
             // Page or null.
             if (!pageCache.ContainsKey(key)) return null;
             PageInfo pi = pageCache[key];
+            // If page only allows direct requests, but current request is in-page: null
+            if (pi.DirectOnly && !direct) return null;
             PageResult pr = new PageResult
             {
                 RelNorm = rel,

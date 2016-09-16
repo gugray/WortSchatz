@@ -40,8 +40,8 @@ namespace SchatzApp.Logic
         /// <param name="paras">The entire relative URL.</param>
         public IActionResult Index(string paras)
         {
-            var pi = pageProvider.GetPage(paras);
-            if (pi == null) pi = pageProvider.GetPage("404");
+            var pi = pageProvider.GetPage(paras, true);
+            if (pi == null) pi = pageProvider.GetPage("404", true);
             // If it's the results page, we cheat: retrieve score and fill title right here
             // Needed so Facebook shows my actual number when sharing
             string title = pi.Title;

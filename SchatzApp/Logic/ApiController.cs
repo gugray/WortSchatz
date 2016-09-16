@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 using SchatzApp.Entities;
@@ -24,15 +26,25 @@ namespace SchatzApp.Logic
         /// Repository of submitted quizzes.
         /// </summary>
         private readonly ResultRepo resultRepo;
+        /// <summary>
+        /// Secret that caller must know for all DB dump and file fetch calls.
+        /// </summary>
+        private readonly string exportSecret;
+        /// <summary>
+        /// Base path where export files go.
+        /// </summary>
+        private readonly string exportPath;
 
         /// <summary>
         /// Ctor: inject dependencies.
         /// </summary>
-        public ApiController(PageProvider pageProvider, Sampler sampler, ResultRepo resultRepo)
+        public ApiController(PageProvider pageProvider, Sampler sampler, ResultRepo resultRepo, IConfiguration config)
         {
             this.pageProvider = pageProvider;
             this.sampler = sampler;
             this.resultRepo = resultRepo;
+            exportSecret = config["exportSecret"];
+            exportPath = config["exportPath"];
         }
 
         /// <summary>
@@ -57,8 +69,8 @@ namespace SchatzApp.Logic
         /// <param name="rel">Relative URL of content.</param>
         public IActionResult GetPage([FromForm] string rel)
         {
-            var pi = pageProvider.GetPage(rel);
-            if (pi == null) return new ObjectResult(null);
+            var pi = pageProvider.GetPage(rel, false);
+            if (pi == null) pi = pageProvider.GetPage("404", false);
             PageResult res = new PageResult
             {
                 Title = pi.Title,
@@ -103,7 +115,9 @@ namespace SchatzApp.Logic
             // TO-DO: country from IP
             // Request.HttpContext etc
             // Store result
-            StoredResult sr = new StoredResult("NNN", DateTime.Now, 0, 0, score, new string(resCoded), oSurvey);
+            int nQuizCount = int.Parse(quizCount);
+            int nSurveyCount = int.Parse(surveyCount);
+            StoredResult sr = new StoredResult("NNN", DateTime.Now, nQuizCount, nSurveyCount, score, new string(resCoded), oSurvey);
             string uid = resultRepo.StoreResult(sr);
             // Response is result code, pure and simple.
             return new ObjectResult(uid);
@@ -119,6 +133,24 @@ namespace SchatzApp.Logic
             // Respond
             if (score == -1) return new ObjectResult(null);
             return new ObjectResult(score);
+        }
+
+        /// <summary>
+        /// Starts database dump in BG thread and returns immediately.
+        /// </summary>
+        public IActionResult Export([FromForm] string secret)
+        {
+            // Not for anyone.
+            if (secret != exportSecret) return new ObjectResult("barf");
+            // Dump file name: current date and time
+            string fname = "results-{0}-{1}-{2}!{3}-{4}.txt";
+            DateTime dt = DateTime.Now;
+            fname = string.Format(fname, dt.Year, dt.Month.ToString("00"), dt.Day.ToString("00"), dt.Hour.ToString("00"), dt.Minute.ToString("00"));
+            fname = Path.Combine(exportPath, fname);
+            // Start process async
+            bool ok = resultRepo.DumpToFileAsync(fname);
+            // Return: ok or not
+            return new ObjectResult(ok ? "started" : "dump-already-in-progress");
         }
     }
 }

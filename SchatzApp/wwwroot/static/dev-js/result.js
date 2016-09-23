@@ -52,6 +52,9 @@ var wsResult = (function () {
         ga("send", "event", "result", "fbshared");
       });
     });
+    req.fail(function (jqXHR, textStatus, error) {
+      wsPage.navigateTo("/fehler");
+    });
   }
 
   // Increments ("precision") during show-number animation

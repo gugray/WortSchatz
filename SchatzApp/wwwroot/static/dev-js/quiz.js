@@ -58,6 +58,9 @@ var wsQuiz = (function () {
       displayWords(words1, "#quizTable1");
       $("#donePage01").removeClass("disabled");
     });
+    req.fail(function (jqXHR, textStatus, error) {
+      wsPage.navigateTo("/fehler");
+    });
   }
 
   // Display one page's worth of sample words in table layout.
@@ -174,6 +177,9 @@ var wsQuiz = (function () {
       words1 = words2 = [];
       // Redirect to proper results page
       wsPage.navigateTo("/ergebnis/" + data);
+    });
+    req.fail(function (jqXHR, textStatus, error) {
+      wsPage.navigateTo("/fehler");
     });
     // Track as GA event: quiz submitted
     ga("send", "event", "quiz", "submit");

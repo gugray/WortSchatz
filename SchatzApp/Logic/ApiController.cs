@@ -120,6 +120,8 @@ namespace SchatzApp.Logic
         public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey,
             [FromForm] string quizCount, [FromForm] string surveyCount)
         {
+            // DBG
+            throw new Exception("barf");
             // Parse data from query
             var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);
             var oSurvey = JsonConvert.DeserializeObject<SurveyData>(survey);

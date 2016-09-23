@@ -37,7 +37,7 @@ namespace SchatzApp.Logic
         /// <summary>
         /// The website's base URL: used in sitemap entries.
         /// </summary>
-        private const string baseUrl = "https://wortshatz.tk";
+        private const string baseUrl = "https://wortschatz.tk";
 
         /// <summary>
         /// My own logger.

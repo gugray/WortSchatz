@@ -19,20 +19,25 @@ namespace SchatzApp.Logic
         /// </summary>
         public class PageInfo
         {
-            public readonly bool DirectOnly;
+            public readonly bool NoIndex;
             public readonly string Title;
             public readonly string Keywords;
             public readonly string Description;
             public readonly string Html;
-            public PageInfo(bool directOnly, string title, string keywords, string description, string html)
+            public PageInfo(bool noIndex, string title, string keywords, string description, string html)
             {
-                DirectOnly = directOnly;
+                NoIndex = noIndex;
                 Title = title;
                 Keywords = keywords;
                 Description = description;
                 Html = html;
             }
         }
+
+        /// <summary>
+        /// The website's base URL: used in sitemap entries.
+        /// </summary>
+        private const string baseUrl = "https://wortshatz.tk";
 
         /// <summary>
         /// My own logger.
@@ -65,6 +70,7 @@ namespace SchatzApp.Logic
         /// </summary>
         private void initPageCache()
         {
+            // Recreate entire cache
             pageCache.Clear();
             var files = Directory.EnumerateFiles("./html");
             foreach (var fn in files)
@@ -75,6 +81,20 @@ namespace SchatzApp.Logic
                 PageInfo pi = loadPage(fn, out rel);
                 if (rel == null) continue;
                 pageCache[rel] = pi;
+            }
+            // If running in development env, recreate sitemap
+            if (isDevelopment)
+            {
+                using (FileStream fs = new FileStream("wwwroot/sitemap.txt", FileMode.Create, FileAccess.Write))
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    foreach (var pi in pageCache)
+                    {
+                        if (pi.Value.NoIndex) continue;
+                        string line = baseUrl + pi.Key;
+                        sw.WriteLine(line);
+                    }
+                }
             }
         }
 
@@ -89,7 +109,7 @@ namespace SchatzApp.Logic
         private PageInfo loadPage(string fileName, out string rel)
         {
             StringBuilder html = new StringBuilder();
-            bool directOnly = false;
+            bool noIndex = false;
             string title = string.Empty;
             string description = string.Empty;
             string keywords = string.Empty;
@@ -111,10 +131,10 @@ namespace SchatzApp.Logic
                     else if (key == "description") description = m.Groups[2].Value;
                     else if (key == "keywords") keywords = m.Groups[2].Value;
                     else if (key == "rel") rel = m.Groups[2].Value;
-                    else if (key == "directonly") directOnly = true;
+                    else if (key == "noindex") noIndex = true;
                 }
             }
-            return new PageInfo(directOnly, title, keywords, description, html.ToString());
+            return new PageInfo(noIndex, title, keywords, description, html.ToString());
         }
 
         /// <summary>
@@ -140,9 +160,10 @@ namespace SchatzApp.Logic
             if (!pageCache.ContainsKey(key)) return null;
             PageInfo pi = pageCache[key];
             // If page only allows direct requests, but current request is in-page: null
-            if (pi.DirectOnly && !direct) return null;
+            if (pi.NoIndex && !direct) return null;
             PageResult pr = new PageResult
             {
+                NoIndex = pi.NoIndex,
                 RelNorm = rel,
                 Title = pi.Title,
                 Description = pi.Description,

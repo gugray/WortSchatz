@@ -6,6 +6,10 @@
     public class PageResult
     {
         /// <summary>
+        /// If true, page must include "noindex" meta tag.
+        /// </summary>
+        public bool NoIndex;
+        /// <summary>
         /// The page's normalized relative URL.
         /// </summary>
         public string RelNorm;

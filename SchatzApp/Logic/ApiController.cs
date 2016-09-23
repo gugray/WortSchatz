@@ -88,6 +88,7 @@ namespace SchatzApp.Logic
             if (pi == null) pi = pageProvider.GetPage("404", false);
             PageResult res = new PageResult
             {
+                NoIndex = pi.NoIndex,
                 Title = pi.Title,
                 Description = pi.Description,
                 Keywords = pi.Keywords,
@@ -120,8 +121,6 @@ namespace SchatzApp.Logic
         public IActionResult EvalQuiz([FromForm] string quiz, [FromForm] string survey,
             [FromForm] string quizCount, [FromForm] string surveyCount)
         {
-            // DBG
-            throw new Exception("barf");
             // Parse data from query
             var oQuiz = JsonConvert.DeserializeObject<IList<string[]>>(quiz);
             var oSurvey = JsonConvert.DeserializeObject<SurveyData>(survey);

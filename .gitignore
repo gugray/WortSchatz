@@ -21,4 +21,6 @@ project.lock.json
 *.user
 /*.tar.gz
 **/html/cont-*.html
+**/sitemap.txt
+
 

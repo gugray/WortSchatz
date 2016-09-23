@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /cookies
+Disallow: /cookies/
+Disallow: /impressum
+Disallow: /impressum/
+
+SITEMAP: https://wortschatz.tk/sitemap.txt

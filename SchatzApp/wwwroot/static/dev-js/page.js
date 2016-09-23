@@ -117,6 +117,8 @@ var wsPage = (function () {
 
   // Apply dynamic content: HTML body, title, description, keywords; possible other data
   function applyDynContent(data) {
+    if (data.noIndex) $('meta[name=robots]').attr("content", "noindex");
+    else $('meta[name=robots]').attr("content", "");
     $(document).attr("title", data.title);
     $("#content").html(data.html);
     $("#content").removeClass("fading");

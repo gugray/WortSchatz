@@ -54,6 +54,7 @@ namespace SchatzApp.Logic
             }
             PageResult pr = new PageResult
             {
+                NoIndex = pi.NoIndex,
                 Title = title,
                 Description = pi.Description,
                 Keywords = pi.Keywords,

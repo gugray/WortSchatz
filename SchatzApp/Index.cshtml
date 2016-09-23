@@ -7,6 +7,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
   <title>@Model.PR.Title</title>
+  @if (Model.PR.NoIndex)
+  {
+    <meta name="robots" content="noindex">
+  }
   <meta name="description" content="@Model.PR.Description" />
   <meta property="og:title" content="@Model.PR.Title" />
   <meta property="og:description" content="@Model.PR.Description" />

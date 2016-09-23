@@ -1,0 +1,29 @@
+﻿@import "defines.less";
+
+a.article-tile {
+  display: block; position: relative; float: left; width: calc(50% - 5pt);
+  box-sizing: border-box; margin: 0 10pt 20pt 0; padding: 5pt 0 15pt 0;
+  text-decoration: none; color: @clrText;
+  &:hover {  }
+  h2 {
+    position: relative; float: left; width: 100%;
+    width: 100%; margin: 0; font-size: 17pt;
+  }
+  p {
+    width: 100%; margin: 0; font-style: italic;
+    position: relative; float: left; width: 100%;
+  }
+  div.article-tile-prompt {
+    position: relative; float: left; clear: both; width: 100%;
+    font-size: 9pt; margin-top: 5pt; color: @clrRedBase;
+  }
+  &:hover div.article-tile-prompt { color: @clrRedBase; }
+}
+
+.article {
+  h1 { position: relative; float: left; width: 100%; clear: both; font-size: 20pt; margin: 0 0 5pt 0; }
+  h2 { position: relative; float: left; width: 100%; clear: both; font-size: 16pt; margin: 10pt 0 5pt 0; }
+  p { position: relative; float: left; width: 100%; clear: both; margin: 0 0 5pt 0; }
+  p.motto { font-style: italic; margin-bottom: 15pt; }
+  p.formula { margin: 8pt 0 8pt 0; text-align: center; }
+}

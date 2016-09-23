@@ -20,4 +20,5 @@ prod-style/
 project.lock.json
 *.user
 /*.tar.gz
+**/html/cont-*.html
 

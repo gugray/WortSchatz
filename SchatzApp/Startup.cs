@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 
 using SchatzApp.Logic;
+using Countries;
 
 namespace SchatzApp
 {
@@ -61,6 +62,7 @@ namespace SchatzApp
         public void ConfigureServices(IServiceCollection services)
         {
             // Application-specific singletons.
+            services.AddSingleton(new CountryResolver());
             services.AddSingleton(new PageProvider(loggerFactory, env.IsDevelopment()));
             services.AddSingleton(new Sampler(loggerFactory, config["sampleFileName"]));
             resultRepo = new ResultRepo(loggerFactory, config["dbFileName"]);

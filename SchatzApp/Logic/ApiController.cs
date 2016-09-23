@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
+using Countries;
 using SchatzApp.Entities;
 
 namespace SchatzApp.Logic
@@ -14,6 +17,14 @@ namespace SchatzApp.Logic
     /// </summary>
     public class ApiController : Controller
     {
+        /// <summary>
+        /// This controller's logger.
+        /// </summary>
+        private readonly ILogger logger;
+        /// <summary>
+        /// Resolves remote IP address into country code.
+        /// </summary>
+        private readonly CountryResolver countryResolver;
         /// <summary>
         /// Provides content HTML based on relative URL of singe-page request.
         /// </summary>
@@ -38,8 +49,12 @@ namespace SchatzApp.Logic
         /// <summary>
         /// Ctor: inject dependencies.
         /// </summary>
-        public ApiController(PageProvider pageProvider, Sampler sampler, ResultRepo resultRepo, IConfiguration config)
+        public ApiController(ILoggerFactory lf,
+            CountryResolver countryResolver, PageProvider pageProvider,
+            Sampler sampler, ResultRepo resultRepo, IConfiguration config)
         {
+            logger = lf.CreateLogger(GetType().FullName);
+            this.countryResolver = countryResolver;
             this.pageProvider = pageProvider;
             this.sampler = sampler;
             this.resultRepo = resultRepo;
@@ -112,12 +127,15 @@ namespace SchatzApp.Logic
             int score;
             char[] resCoded;
             sampler.Eval(oQuiz, out score, out resCoded);
-            // TO-DO: country from IP
-            // Request.HttpContext etc
+            // Get country from remote IP. Trickier b/c of NGINX reverse proxy.
+            string country;
+            string xfwd = HttpContext.Request.Headers["X-Real-IP"];
+            if (xfwd != null) country = countryResolver.GetContryCode(IPAddress.Parse(xfwd));
+            else country = countryResolver.GetContryCode(HttpContext.Connection.RemoteIpAddress);
             // Store result
             int nQuizCount = int.Parse(quizCount);
             int nSurveyCount = int.Parse(surveyCount);
-            StoredResult sr = new StoredResult("NNN", DateTime.Now, nQuizCount, nSurveyCount, score, new string(resCoded), oSurvey);
+            StoredResult sr = new StoredResult(country, DateTime.Now, nQuizCount, nSurveyCount, score, new string(resCoded), oSurvey);
             string uid = resultRepo.StoreResult(sr);
             // Response is result code, pure and simple.
             return new ObjectResult(uid);

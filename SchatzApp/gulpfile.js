@@ -31,8 +31,7 @@ gulp.task('scripts', function () {
     './wwwroot/static/lib/countUp.js',
     './wwwroot/static/dev-js/page.js',
     './wwwroot/static/dev-js/quiz.js',
-    './wwwroot/static/dev-js/result.js',
-    './wwwroot/static/dev-js/admin.js'
+    './wwwroot/static/dev-js/result.js'
   ])
     .pipe(uglify())
     .pipe(concat('app.min.js'))

@@ -138,7 +138,7 @@ namespace SchatzApp.Logic
         /// <summary>
         /// Starts database dump in BG thread and returns immediately.
         /// </summary>
-        public IActionResult Export([FromForm] string secret)
+        public IActionResult Export([FromQuery] string secret)
         {
             // Not for anyone.
             if (secret != exportSecret) return new ObjectResult("barf");

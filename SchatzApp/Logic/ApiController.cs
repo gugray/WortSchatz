@@ -155,6 +155,15 @@ namespace SchatzApp.Logic
         }
 
         /// <summary>
+        /// Cleans up excess dump files from the past; renames latest one to "results.txt"
+        /// </summary>
+        /// <param name="currFN"></param>
+        private void dumpCleanup(string currFN)
+        {
+
+        }
+
+        /// <summary>
         /// Starts database dump in BG thread and returns immediately.
         /// </summary>
         public IActionResult Export([FromQuery] string secret)

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
@@ -231,11 +233,80 @@ namespace SchatzApp.Logic
         /// </summary>
         private void dumpThreadFun(object o)
         {
-            try { doDumpToFile((string)o); }
-            catch (Exception ex) { logger.LogError(new EventId(), ex, "Background dump failed"); }
-            finally
+            try
             {
-                lock (bgDumpFlagLock) { bgDumpFlag = false; }
+                string currFN = (string)o;
+                doDumpToFile(currFN);
+                dumpCleanup(currFN);
+            }
+            catch (Exception ex) { logger.LogError(new EventId(), ex, "Background dump failed"); }
+            finally { lock (bgDumpFlagLock) { bgDumpFlag = false; } }
+        }
+
+        /// <summary>
+        /// One result file in output folder, with date extracted.
+        /// </summary>
+        private class ResultFileInfo
+        {
+            public DateTime Date;
+            public string FullName;
+        }
+
+        /// <summary>
+        /// Result file name regex.
+        /// </summary>
+        private Regex reRFN = new Regex(@"^results\-(\d{4})\-(\d{2})\-(\d{2})[^\.]+\.txt$");
+
+        /// <summary>
+        /// Cleans up excess dump files from the past; renames latest one to "results.txt"
+        /// </summary>
+        /// <param name="currFN"></param>
+        private void dumpCleanup(string currFN)
+        {
+            // Replace/create results.txt as copy of current dump file
+            string dir = Path.GetDirectoryName(currFN);
+            string plainFN = Path.Combine(dir, "results.txt");
+            if (File.Exists(plainFN)) File.Delete(plainFN);
+            File.Copy(currFN, plainFN);
+            // List all TXT dump files in folder
+            // Keep those from last 7 days, and the first one from each month
+            string[] files = Directory.GetFiles(dir);
+            List<ResultFileInfo> rfis = new List<ResultFileInfo>(files.Length);
+            foreach (string fn in files)
+            {
+                plainFN = Path.GetFileName(fn);
+                Match m = reRFN.Match(plainFN);
+                if (!m.Success) continue;
+                rfis.Add(new ResultFileInfo
+                {
+                    Date = new DateTime(int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value)),
+                    FullName = fn
+                });
+            }
+            rfis.Sort((x, y) => x.Date.CompareTo(y.Date));
+            HashSet<ResultFileInfo> toKeep = new HashSet<ResultFileInfo>();
+            if (rfis.Count <= 7) foreach (var x in rfis) toKeep.Add(x);
+            else
+            {
+                // Keep first file from each month
+                int lastMonthFirst = 100101;
+                foreach (var x in rfis)
+                {
+                    int currMonth = x.Date.Year * 100 + x.Date.Month;
+                    if (currMonth > lastMonthFirst)
+                    {
+                        lastMonthFirst = currMonth;
+                        toKeep.Add(x);
+                    }
+                }
+                // Keep latest 7 files
+                for (int i = 0; i != 7 && rfis.Count - i - 1 >= 0; ++i) toKeep.Add(rfis[rfis.Count - i - 1]);
+            }
+            // Delete all, except the ones to keep
+            foreach (var x in rfis)
+            {
+                if (toKeep.Contains(x)) continue;
+                File.Delete(x.FullName);
             }
         }
 

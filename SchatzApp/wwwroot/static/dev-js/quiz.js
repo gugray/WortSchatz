@@ -68,8 +68,8 @@ var wsQuiz = (function () {
     var qhtml = "";
     for (var i = 0; i != words.length; ++i) {
       if (i % 4 == 0) {
-        if (i != 0) qhtml += "</div>";
-        qhtml += "<div class='quizRow'>";
+        //if (i != 0) qhtml += "</div>";
+        //qhtml += "<div class='quizRow'>";
       }
       var wix;
       if (i % 4 == 0) wix = i / 4;

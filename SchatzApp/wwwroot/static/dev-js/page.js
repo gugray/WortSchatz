@@ -36,8 +36,37 @@ var wsPage = (function () {
     rel = path;
   }
 
+  function initDebug() {
+    var dbgHtml = "<div id='debug'></div>";
+    $(dbgHtml).appendTo("body");
+    updateDebug();
+    $(window).resize(updateDebug);
+  }
+
+  function updateDebug() {
+    var clientw = document.body.clientWidth;
+    var testw = $("#wtest").width();
+    var dbgHtml = "ClW: " + clientw + " TestW: " + testw;
+    $("#debug").html(dbgHtml);
+  }
+
+  function adaptToSize() {
+    var clientw = document.body.clientWidth;
+    var testw = $("#wtest").width();
+    if (clientw <= testw) $("body").addClass("narrow");
+    else $("body").removeClass("narrow");
+    if (clientw <= testw * 0.6) $("body").addClass("verynarrow");
+    else $("body").removeClass("verynarrow");
+  }
+
   // Page just loaded: time to get dynamic part asynchronously, wherever we just landed
   $(document).ready(function () {
+    // Debug
+    //initDebug();
+
+    // Handcrafted adaptive layout
+    adaptToSize();
+
     // Make sense of location
     parseLocation();
     // Update menu to show where I am (will soon end up being)

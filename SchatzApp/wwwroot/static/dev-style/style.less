@@ -13,6 +13,8 @@ body {
   overflow-y: scroll;
 }
 
+#wtest { position: fixed; top: -10000pt; left: -10000pt; width: @contWidthFull; }
+
 #header {
   position: fixed; top: 0; left: 0; width: 100%; height: @headerHeight;
   background-color: white; opacity: 0.95; z-index: 1;
@@ -45,10 +47,23 @@ body {
   position: relative; width: @contWidthFull; box-sizing: border-box;
   max-width: 100%; overflow-x: hidden; overflow-y: auto;
   margin: @headerHeight + 20pt auto 0 auto;
-  //border: 1px solid red;
 }
 
-#content.fading { opacity: 0.5; }
+body.narrow {
+  #header-logo { left: 15pt; }
+  #header-menu { position: absolute; left: 65pt; }
+  #centrer { margin-left: 0; margin-right: 0; width: 100%; }
+  #content { padding: 0 15pt 0 15pt; }
+}
+
+body.verynarrow {
+  #header-menu a { font-size: 14pt; margin-left: 20pt; }
+}
+
+#content {
+  width: 100%; box-sizing: border-box;
+  &.fading { opacity: 0.5; }
+}
 
 a { text-decoration: none; color: @clrRedBase; }
 
@@ -82,3 +97,12 @@ a { text-decoration: none; color: @clrRedBase; }
   & div:nth-child(1) { width: 80%; float: left; padding: 0 10pt 0 20pt; text-align: right; }
   & div:nth-child(2) { width: 20%; float: right; padding-right: 20pt; text-align: left; line-height: 18pt; }
 }
+
+// DEBUG STUFF
+
+#debug {
+  position: fixed; top: 10px; left: 10px; z-index: 64; padding: 5px;
+  font-size: 9pt; font-family: sans-serif;
+  background-color: #555; opacity: 0.8; color: white;
+}
+

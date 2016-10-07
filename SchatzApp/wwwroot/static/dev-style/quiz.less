@@ -11,6 +11,11 @@
 #quiz-tease-cta { color: black; font-family: Oswald, serif; font-size: 28pt; font-weight: 700; margin-bottom: 30pt; }
 #quiz-tease-cta span { display: block; font-family: Lora, serif; font-style: italic; font-size: 11pt; font-weight: 400; }
 
+body.narrow {
+  #quiz-tease-question { position: relative; float: left; width: auto; left: 0; top: 0; clear: both; }
+  #quiz-tease-cta { position: relative; float: left; clear: both; }
+}
+
 .quiz-heading { position: relative; float: left; width: 100%; font-size: 15pt; }
 .quiz-heading div { position: relative; float: left; }
 .quiz-heading .quiz-heading-1 { font-weight: bold; }
@@ -31,7 +36,7 @@
 .button.disabled, .button.disabled:hover { background-color: @clrDisabled; }
 .button:hover { background-color: @clrRedHover; }
 
-.quizTable { 
+/*.quizTable { 
   display: table; position: relative; float: left; width: @contWidthFull + 6pt; margin: 10pt 0 0 -3pt;
   cursor: default; font-size: 11pt; border-spacing: 3pt;
 }
@@ -40,6 +45,26 @@
   display: table-cell; box-sizing: border-box; padding: 4pt; width: 25%;
   &:hover { background-color: @clrGreenHover; }
   &.selected { background-color: @clrGreenSelected; }
+}*/
+
+.quizTable { 
+  display: block; position: relative; width: 100%; height: auto; overflow-y: auto;
+  margin: 0 0 0 -@quizFontSize / 4;
+  padding-top: 10pt;
+  cursor: default; font-size: @quizFontSize;
+}
+.quizCell {
+  display: block; position: relative; float: left; box-sizing: border-box; padding: 4pt; width: @quizFontSize * 12.5;
+  margin: @quizFontSize / 8 @quizFontSize / 4 @quizFontSize / 8 @quizFontSize / 4;
+  &:hover { background-color: @clrGreenHover; }
+  &.selected { background-color: @clrGreenSelected; }
+}
+
+body.verynarrow {
+  .quizTable { font-size: @quizFontSizeVeryNarrow; margin-left: -@quizFontSizeVeryNarrow / 4; }
+  .quizCell {
+    width: @quizFontSizeVeryNarrow * 10;
+    margin: @quizFontSizeVeryNarrow / 8 @quizFontSizeVeryNarrow / 4 @quizFontSizeVeryNarrow / 8 @quizFontSizeVeryNarrow / 4; }
 }
 
 #quiz-survey, .quiz-survey-item { position: relative; float: left; clear: both; width: 100%; }

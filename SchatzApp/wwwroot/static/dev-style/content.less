@@ -26,8 +26,32 @@ a.article-tile {
   p { position: relative; float: left; width: 100%; clear: both; margin: 0 0 5pt 0; }
   p.motto { font-style: italic; margin-bottom: 15pt; }
   p.formula { margin: 8pt 0 8pt 0; text-align: center; }
+  .img-full { width: 100%; }
+  .data-table {
+    position: relative; float: left; width: 100%; clear: both;
+    display: table;
+    div {
+      display: table-row;
+      &.heading { font-weight: bold; div { border-bottom: 1pt solid; } }
+      div { display: table-cell; }
+    }
+  }
 }
 
 body.verynarrow {
   a.article-tile { width: calc(100% - 5pt); }
+}
+
+#tbl-arealme {
+  position: relative; float: left; width: 100%; clear: both; margin: 10pt 0 10pt 0; font-family: @fontSans;
+  .data-table {
+    font-family: @fontSans; width: auto;
+    div {
+      div { padding: 0 20pt 0 0; text-align: right; }
+      div:first-child { text-align: center; padding-left: 5pt; }
+      div:last-child { padding-right: 5pt; }
+      div:nth-child(3) { border-left: 1pt dotted; padding-left: 5pt; }
+    }
+    div:nth-child(n+2) { div { padding-top: 3pt; padding-bottom: 3pt; border-bottom: 1pt dotted; } }
+  }
 }

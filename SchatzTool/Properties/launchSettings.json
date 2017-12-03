@@ -2,7 +2,7 @@
   "profiles": {
     "SchatzTool": {
       "commandName": "Project",
-      "commandLineArgs": "--cloudtext _work\\sv10.txt _work\\40-cloud.txt",
+      "commandLineArgs": "--results1 _work\\results.txt _work\\50-surveys-flat.txt",
       "workingDirectory": "D:\\Development\\Wortschatz"
     }
   }

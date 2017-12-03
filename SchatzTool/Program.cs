@@ -39,6 +39,10 @@ namespace SchatzTool
             Console.WriteLine("  <quiz-sample-file>");
             Console.WriteLine("  <output-file>");
             Console.WriteLine("  ** Generates dummy text from actual sample for word cloud.");
+            Console.WriteLine("--results1");
+            Console.WriteLine("  <results-file>");
+            Console.WriteLine("  <output-file>");
+            Console.WriteLine("  ** Creates flat tab-separated TXT from results file, keeping only first surveys.");
         }
 
         private static TaskBase parseArgs(string[] args)
@@ -73,6 +77,11 @@ namespace SchatzTool
             {
                 if (args.Length != 3) return null;
                 return new CloudText(args[1], args[2]);
+            }
+            else if (args[0] == "--results1")
+            {
+                if (args.Length != 3) return null;
+                return new Results1(args[1], args[2]);
             }
             return null;
         }

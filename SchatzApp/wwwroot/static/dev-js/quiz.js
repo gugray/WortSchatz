@@ -183,6 +183,7 @@ var wsQuiz = (function () {
     });
     // Track as GA event: quiz submitted
     ga("send", "event", "quiz", "submit");
+    plausible("quiz");
   }
 
   // Gets count of previously submitted quizzes and surveys; increments counts in local storage.

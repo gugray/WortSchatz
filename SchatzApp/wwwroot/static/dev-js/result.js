@@ -50,6 +50,7 @@ var wsResult = (function () {
       // When share link is clicked: also record GA event
       $("#fb-share-link").click(function () {
         ga("send", "event", "result", "fbshared");
+        plausible("result");
       });
     });
     req.fail(function (jqXHR, textStatus, error) {

@@ -6,13 +6,13 @@
     /// </summary>
     public class SurveyData
     {
-        public string Native;
-        public string Age;
-        public string NativeCountry;
-        public string NativeEducation;
-        public string NativeOtherLangs;
-        public string NnCountryNow;
-        public string NnGermanTime;
-        public string NnGermanLevel;
+        public string Native { get; set; }
+        public string Age { get; set; }
+        public string NativeCountry { get; set; }
+        public string NativeEducation { get; set; }
+        public string NativeOtherLangs { get; set; }
+        public string NnCountryNow { get; set; }
+        public string NnGermanTime { get; set; }
+        public string NnGermanLevel { get; set; }
     }
 }

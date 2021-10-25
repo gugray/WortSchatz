@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 using SchatzApp.Logic;
@@ -14,12 +15,13 @@ namespace SchatzApp
 {
     public class Startup
     {
-        private readonly IHostingEnvironment env;
+        private readonly IHostEnvironment env;
         private readonly ILoggerFactory loggerFactory;
         private readonly IConfigurationRoot config;
+
         private ResultRepo resultRepo = null;
 
-        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public Startup(IHostEnvironment env, ILoggerFactory loggerFactory)
         {
             this.env = env;
             this.loggerFactory = loggerFactory;
@@ -46,21 +48,16 @@ namespace SchatzApp
                 else seriConf.MinimumLevel.Fatal();
                 Log.Logger = seriConf.CreateLogger();
             }
-
-            // Log to console (debug) or file (otherwise).
-            // Must do here, so log capture errors if singleton services throw at startup.
-            LogLevel ll = LogLevel.Critical;
-            if (config["logLevel"] == "Trace") ll = LogLevel.Trace;
-            else if (config["logLevel"] == "Debug") ll = LogLevel.Debug;
-            else if (config["logLevel"] == "Information") ll = LogLevel.Information;
-            else if (config["logLevel"] == "Warning") ll = LogLevel.Warning;
-            else if (config["logLevel"] == "Error") ll = LogLevel.Error;
-            if (env.IsDevelopment()) loggerFactory.AddConsole(ll);
-            else loggerFactory.AddSerilog();
+            loggerFactory.AddSerilog();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            if (env.IsDevelopment())
+            {
+                services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+            }
+
             // Application-specific singletons.
             services.AddSingleton(new CountryResolver());
             services.AddSingleton(new PageProvider(loggerFactory, env.IsDevelopment()));
@@ -68,12 +65,15 @@ namespace SchatzApp
             resultRepo = new ResultRepo(loggerFactory, config["dbFileName"]);
             services.AddSingleton(resultRepo);
             // MVC for serving pages and REST
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+            });
             // Configuration singleton
             services.AddSingleton<IConfiguration>(sp => { return config; });
         }
 
-        public void Configure(IApplicationBuilder app, IApplicationLifetime appLife)
+        public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLife)
         {
             // Sign up to application shutdown so we can do proper cleanup
             appLife.ApplicationStopping.Register(onApplicationStopping);

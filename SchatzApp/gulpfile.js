@@ -1,12 +1,10 @@
-﻿/// <binding BeforeBuild='default' Clean='clean' ProjectOpened='watch' />
-var gulp = require('gulp');
-var less = require('gulp-less');
-var path = require('path');
-var concat = require('gulp-concat');
-var plumber = require('gulp-plumber');
-var uglify = require('gulp-uglify');
-var minifyCSS = require('gulp-minify-css');
-var del = require('del');
+﻿const gulp = require('gulp');
+const less = require('gulp-less');
+const path = require('path');
+const concat = require('gulp-concat');
+const plumber = require('gulp-plumber');
+const del = require('del');
+const uglify = require('gulp-uglify');
 
 // Compile all .less files to .css
 gulp.task('less', function () {
@@ -17,6 +15,15 @@ gulp.task('less', function () {
     }))
     .pipe(gulp.dest('./wwwroot/static/dev-style/'));
 });
+
+// Minify and bundle CSS files
+gulp.task('styles', gulp.series('less', function () {
+  return gulp.src(['./wwwroot/static/dev-style/*.css', '!./wwwroot/static/dev-style/*.min.css'])
+    //.pipe(minifyCSS())
+    .pipe(concat('app.min.css'))
+    .pipe(gulp.dest('./wwwroot/static/prod-style/'));
+}));
+
 
 // Delete all compiled and bundled files
 gulp.task('clean', function () {
@@ -33,21 +40,13 @@ gulp.task('scripts', function () {
     './wwwroot/static/dev-js/quiz.js',
     './wwwroot/static/dev-js/result.js'
   ])
-    .pipe(uglify())
+    .pipe(uglify().on('error', function (e) { console.log(e); }))
     .pipe(concat('app.min.js'))
     .pipe(gulp.dest('./wwwroot/static/prod-js/'));
 });
 
-// Minify and bundle CSS files
-gulp.task('styles', ['less'], function () {
-  return gulp.src(['./wwwroot/static/dev-style/*.css', '!./wwwroot/static/dev-style/*.min.css'])
-    .pipe(minifyCSS())
-    .pipe(concat('app.min.css'))
-    .pipe(gulp.dest('./wwwroot/static/prod-style/'));
-});
-
 // Default task: full clean+build.
-gulp.task('default', ['clean', 'scripts', 'styles'], function () { });
+gulp.task('default', gulp.series('clean', 'scripts', 'styles'), function () { });
 
 // Watch: recompile less on changes
 gulp.task('watch', function () {

@@ -10,8 +10,7 @@
     "gulp-livereload": "4.0.2",
     "gulp-plumber": "^1.2.1",
     "gulp-uglify": "^3.0.2",
-    "gulp-util": "^3.0.8",
-    "gulp-mini"
+    "gulp-util": "^3.0.8"
   }
 }
 

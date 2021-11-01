@@ -68,7 +68,7 @@ namespace SchatzApp
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;
-            });
+            }).AddRazorRuntimeCompilation();
             // Configuration singleton
             services.AddSingleton<IConfiguration>(sp => { return config; });
         }

@@ -1,3 +1,4 @@
+.DS_Store
 # WortSchatz's custom directory structure
 _sources/*
 !_sources/.placeholder

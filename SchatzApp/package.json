@@ -2,15 +2,14 @@
   "name": "package",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch"
+  },
   "devDependencies": {
-    "del": "^6.0.0",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-less": "^5.0.0",
-    "gulp-livereload": "4.0.2",
-    "gulp-plumber": "^1.2.1",
-    "gulp-uglify": "^3.0.2",
-    "gulp-util": "^3.0.8"
+    "esbuild": "0.13.12",
+    "esbuild-plugin-less": "1.1.5",
+    "livereload": "0.9.3"
   }
 }
 
